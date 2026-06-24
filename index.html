@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wikipedia sentence rewriter</title>
+<style>
+  :root {
+    --bg: #faf9f6; --surface: #fff; --line: #e3e0d8; --line2: #cfccc2;
+    --text: #1a1a18; --muted: #6b6a64; --hint: #9a9890;
+    --info: #185fa5;
+    --danger: #a32d2d; --danger-bg: #fceaea;
+    --warn: #854f0b; --warn-bg: #faeeda;
+    --mono: ui-monospace, "SF Mono", "Berkeley Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18; --surface: #252420; --line: #3a3934; --line2: #4a4843;
+      --text: #ece9e2; --muted: #a3a199; --hint: #6f6d66;
+      --info: #85b7eb;
+      --danger: #f09595; --danger-bg: #3d1717;
+      --warn: #efb866; --warn-bg: #3d2c10;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text);
+    margin: 0; padding: 2rem 1rem; line-height: 1.6; display: flex; justify-content: center; }
+  .wrap { width: 100%; max-width: 720px; }
+  h1 { font-size: 20px; font-weight: 500; margin: 0 0 4px; }
+  .sub { font-size: 14px; color: var(--muted); margin: 0 0 1.5rem; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  textarea { width: 100%; font-family: var(--sans); font-size: 15px; line-height: 1.5;
+    padding: 10px 12px; border: 1px solid var(--line2); border-radius: 8px;
+    background: var(--surface); color: var(--text); resize: vertical; }
+  textarea:focus { outline: none; border-color: var(--info); }
+  .controls { display: flex; gap: 12px; align-items: center; margin: 1rem 0 1.5rem; flex-wrap: wrap; }
+  button.primary { padding: 0 18px; height: 38px; border: none; border-radius: 8px;
+    background: var(--info); color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; }
+  button.primary:disabled { opacity: 0.5; cursor: default; }
+  .status { font-size: 13px; color: var(--hint); }
+  .label { font-size: 13px; font-weight: 500; color: var(--muted); margin: 0 0 8px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+  .issue { background: var(--surface); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; border: 1px solid var(--line); }
+  .tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 6px; margin-right: 8px; background: var(--danger-bg); color: var(--danger); }
+  .why { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+  .approach { font-size: 12px; font-weight: 500; color: var(--info); }
+  .rw { margin: 6px 0 0; font-size: 15px; }
+  .note { margin: 6px 0 0; font-size: 12px; color: var(--hint); }
+  .rwhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  button.copy { height: 28px; padding: 0 10px; font-size: 12px; border: 1px solid var(--line2); background: transparent; color: var(--text); border-radius: 6px; cursor: pointer; }
+  .warnbox { background: var(--warn-bg); color: var(--warn); border-radius: 8px; padding: 12px 14px; margin-bottom: 1.25rem; font-size: 14px; }
+  .warnbox ul { margin: 6px 0 0; padding-left: 18px; }
+  section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Wikipedia sentence rewriter</h1>
+  <p class="sub">Paste a sentence, get MOS issues flagged plus rewrite options in encyclopedic register. You choose the fix.</p>
+
+  <div>
+    <label for="src">Sentence(s) to reword</label>
+    <textarea id="src" rows="4" placeholder="e.g. The temple stands as a testament to the rich cultural heritage of the region and remains beloved by many."></textarea>
+  </div>
+
+  <div class="controls">
+    <button class="primary" id="go">Suggest rewrites</button>
+    <span class="status" id="status">Cmd/Ctrl + Enter to run</span>
+  </div>
+
+  <div id="out"></div>
+</div>
+
+<script>
+const srcEl = document.getElementById('src');
+const out = document.getElementById('out');
+const status = document.getElementById('status');
+const btn = document.getElementById('go');
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const SYS = `You are an editing assistant for a Wikipedia editor cleaning up AI-generated or otherwise non-encyclopedic prose. For the sentence(s) provided:
+1. Identify concrete problems against Wikipedia's Manual of Style: peacock/puffery terms (WP:PEACOCK), weasel words (WP:WEASEL), editorializing, vague intensifiers, unsupported evaluative claims, redundancy/restatement, promotional tone, non-neutral POV. Be specific about which words are the problem.
+2. Give 2-3 rewrites in neutral encyclopedic register, each taking a DIFFERENT approach (e.g. one conservative/minimal, one that strips all evaluation, one that notes what needs a source) — not near-identical versions.
+Do NOT invent facts. If a claim sounds unverifiable or potentially fabricated, flag it for source verification rather than just rewording it.
+Respond ONLY with a JSON object, no preamble, no markdown fences:
+{"issues":[{"span":"exact phrase","type":"short label","why":"one sentence"}],"rewrites":[{"approach":"2-4 word label","text":"rewritten sentence","note":"optional caveat or empty string"}],"verification_flags":["claims to check, or empty array"]}`;
+
+async function run() {
+  const text = srcEl.value.trim();
+  if (!text) { status.textContent = 'Paste a sentence first.'; return; }
+  btn.disabled = true; status.textContent = 'Thinking…'; out.innerHTML = '';
+  try {
+    const resp = await fetch('/api/rewrite', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: SYS,
+        messages: [{ role: 'user', content: 'Sentence(s):\n' + text }]
+      })
+    });
+    if (!resp.ok) {
+      const err = await resp.text();
+      status.textContent = 'Error ' + resp.status + ' — ' + err.slice(0, 200);
+      btn.disabled = false; return;
+    }
+    const data = await resp.json();
+    const raw = data.content.filter(i => i.type === 'text').map(i => i.text).join('\n');
+    render(JSON.parse(raw.replace(/```json|```/g, '').trim()));
+    status.textContent = '';
+  } catch (e) {
+    status.textContent = 'Failed: ' + e.message + ' — is the server running?';
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function render(d) {
+  let html = '';
+  if (d.verification_flags && d.verification_flags.length) {
+    html += '<div class="warnbox"><strong>Check against a source before publishing</strong><ul>' +
+      d.verification_flags.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul></div>';
+  }
+  if (d.issues && d.issues.length) {
+    html += '<section><p class="label">What\u2019s off</p>';
+    d.issues.forEach(i => {
+      html += '<div class="issue"><span class="tag">' + esc(i.type) + '</span><span>"' + esc(i.span) +
+        '"</span><p class="why">' + esc(i.why) + '</p></div>';
+    });
+    html += '</section>';
+  }
+  if (d.rewrites && d.rewrites.length) {
+    html += '<section><p class="label">Rewrite options</p>';
+    d.rewrites.forEach((r, idx) => {
+      html += '<div class="card"><div class="rwhead"><span class="approach">' + esc(r.approach) +
+        '</span><button class="copy" data-copy="' + idx + '">Copy</button></div>' +
+        '<p class="rw" id="rw-' + idx + '">' + esc(r.text) + '</p>' +
+        (r.note ? '<p class="note">' + esc(r.note) + '</p>' : '') + '</div>';
+    });
+    html += '</section>';
+  }
+  out.innerHTML = html;
+  out.querySelectorAll('[data-copy]').forEach(b => {
+    b.addEventListener('click', () => {
+      const t = document.getElementById('rw-' + b.dataset.copy).textContent;
+      navigator.clipboard.writeText(t).then(() => {
+        const o = b.textContent; b.textContent = 'Copied'; setTimeout(() => b.textContent = o, 1200);
+      });
+    });
+  });
+}
+
+btn.addEventListener('click', run);
+srcEl.addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') run(); });
+</script>
+</body>
+</html>
