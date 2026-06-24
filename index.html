@@ -49,15 +49,13 @@
   .note { margin: 6px 0 0; font-size: 12px; color: var(--hint); }
   .rwhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   button.copy { height: 28px; padding: 0 10px; font-size: 12px; border: 1px solid var(--line2); background: transparent; color: var(--text); border-radius: 6px; cursor: pointer; }
-  .warnbox { background: var(--warn-bg); color: var(--warn); border-radius: 8px; padding: 12px 14px; margin-bottom: 1.25rem; font-size: 14px; }
-  .warnbox ul { margin: 6px 0 0; padding-left: 18px; }
   section { margin-bottom: 1.5rem; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Wikipedia sentence rewriter</h1>
-  <p class="sub">Paste a sentence, get MOS issues flagged plus rewrite options in encyclopedic register. You choose the fix.</p>
+  <p class="sub">Paste a sentence or paragraph to flag Manual of Style issues and get rewrite options in an encyclopedic register.</p>
 
   <div>
     <label for="src">Sentence(s) to reword</label>
@@ -80,58 +78,92 @@ const btn = document.getElementById('go');
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-const SYS = `You are an editing assistant for a Wikipedia editor cleaning up AI-generated or otherwise non-encyclopedic prose. For the sentence(s) provided:
+const SYS = `You are an editing assistant for a Wikipedia editor cleaning up AI-generated or otherwise non-encyclopedic prose. For the text provided:
 1. Identify concrete problems against Wikipedia's Manual of Style: peacock/puffery terms (WP:PEACOCK), weasel words (WP:WEASEL), editorializing, vague intensifiers, unsupported evaluative claims, redundancy/restatement, promotional tone, non-neutral POV. Be specific about which words are the problem.
-2. Give 2-3 rewrites in neutral encyclopedic register, each taking a DIFFERENT approach (e.g. one conservative/minimal, one that strips all evaluation, one that notes what needs a source) — not near-identical versions.
-Do NOT invent facts. If a claim sounds unverifiable or potentially fabricated, flag it for source verification rather than just rewording it.
-Field guidance: issues[].span is the exact problem phrase, issues[].type a short label, issues[].why one sentence; rewrites[].approach a 2-4 word label, rewrites[].text the rewritten sentence, rewrites[].note an optional caveat or empty string; verification_flags lists claims to check (empty array if none).`;
+2. Give 2-3 rewrites in neutral encyclopedic register, each taking a DIFFERENT approach (e.g. one conservative/minimal, one that strips all evaluation) — not near-identical versions.
+Do NOT invent facts or add information that is not in the original text.
 
-const SCHEMA = {
-  type: "object", additionalProperties: false,
-  properties: {
-    issues: { type: "array", items: {
-      type: "object", additionalProperties: false,
-      properties: { span: { type: "string" }, type: { type: "string" }, why: { type: "string" } },
-      required: ["span", "type", "why"] } },
-    rewrites: { type: "array", items: {
-      type: "object", additionalProperties: false,
-      properties: { approach: { type: "string" }, text: { type: "string" }, note: { type: "string" } },
-      required: ["approach", "text", "note"] } },
-    verification_flags: { type: "array", items: { type: "string" } }
-  },
-  required: ["issues", "rewrites", "verification_flags"]
-};
+Reply with ONLY a JSON object (no markdown fences, no prose) in exactly this shape:
+{"issues":[{"span":"exact problem phrase","type":"short label","why":"one sentence"}],"rewrites":[{"approach":"2-4 word label","text":"the rewrite","note":"optional caveat or empty string"}]}
+Emit "issues" before "rewrites" so partial output stays readable.`;
+
+// Parse possibly-incomplete JSON streamed from the model: try as-is, else
+// close any open strings/brackets so partial output can render mid-stream.
+function tolerantParse(s) {
+  s = s.trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
+  if (!s) return null;
+  try { return JSON.parse(s); } catch {}
+  const stack = [];
+  let inStr = false, esc = false;
+  for (const c of s) {
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === '\\') esc = true;
+      else if (c === '"') inStr = false;
+    } else if (c === '"') inStr = true;
+    else if (c === '{' || c === '[') stack.push(c);
+    else if (c === '}' || c === ']') stack.pop();
+  }
+  let fix = s;
+  if (inStr) fix += '"';
+  fix = fix.replace(/,\s*$/, '').replace(/:\s*$/, ':null');
+  for (let i = stack.length - 1; i >= 0; i--) fix += stack[i] === '{' ? '}' : ']';
+  try { return JSON.parse(fix); } catch {}
+  return null;
+}
 
 async function run() {
   const text = srcEl.value.trim();
-  if (!text) { status.textContent = 'Paste a sentence first.'; return; }
+  if (!text) { status.textContent = 'Paste some text first.'; return; }
   btn.disabled = true; status.textContent = 'Thinking…'; out.innerHTML = '';
   try {
     const resp = await fetch('/api/rewrite', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-haiku-4-5',
         max_tokens: 4096,
+        stream: true,
         system: SYS,
-        output_config: { format: { type: 'json_schema', schema: SCHEMA } },
-        messages: [{ role: 'user', content: 'Sentence(s):\n' + text }]
+        messages: [{ role: 'user', content: 'Text:\n' + text }]
       })
     });
     if (!resp.ok) {
       const err = await resp.text();
       status.textContent = 'Error ' + resp.status + ' — ' + err.slice(0, 200);
-      btn.disabled = false; return;
+      return;
     }
-    const data = await resp.json();
-    if (data.stop_reason === 'max_tokens') {
-      status.textContent = 'Response was cut off — try fewer sentences at once.';
-      btn.disabled = false; return;
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '', acc = '', cutoff = false;
+    status.textContent = 'Generating…';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      let nl;
+      while ((nl = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, nl).trim();
+        buf = buf.slice(nl + 1);
+        if (!line.startsWith('data:')) continue;
+        const payload = line.slice(5).trim();
+        if (!payload) continue;
+        let evt; try { evt = JSON.parse(payload); } catch { continue; }
+        if (evt.type === 'content_block_delta' && evt.delta && evt.delta.type === 'text_delta') {
+          acc += evt.delta.text;
+          const partial = tolerantParse(acc);
+          if (partial) render(partial);
+        } else if (evt.type === 'message_delta' && evt.delta && evt.delta.stop_reason === 'max_tokens') {
+          cutoff = true;
+        } else if (evt.type === 'error') {
+          status.textContent = 'Error — ' + ((evt.error && evt.error.message) || 'stream error');
+          return;
+        }
+      }
     }
-    const raw = data.content.filter(i => i.type === 'text').map(i => i.text).join('');
-    let parsed;
-    try { parsed = JSON.parse(raw); }
-    catch { status.textContent = 'Could not parse the response. Please retry.'; btn.disabled = false; return; }
+    if (cutoff) { status.textContent = 'Response was cut off — try less text at once.'; return; }
+    const parsed = tolerantParse(acc);
+    if (!parsed) { status.textContent = 'Could not parse the response. Please retry.'; return; }
     render(parsed);
     status.textContent = '';
   } catch (e) {
@@ -144,24 +176,22 @@ async function run() {
 
 function render(d) {
   let html = '';
-  if (d.verification_flags && d.verification_flags.length) {
-    html += '<div class="warnbox"><strong>Check against a source before publishing</strong><ul>' +
-      d.verification_flags.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul></div>';
-  }
-  if (d.issues && d.issues.length) {
+  const issues = (d.issues || []).filter(i => i && (i.span || i.type));
+  if (issues.length) {
     html += '<section><p class="label">What\u2019s off</p>';
-    d.issues.forEach(i => {
-      html += '<div class="issue"><span class="tag">' + esc(i.type) + '</span><span>"' + esc(i.span) +
-        '"</span><p class="why">' + esc(i.why) + '</p></div>';
+    issues.forEach(i => {
+      html += '<div class="issue"><span class="tag">' + esc(i.type || '') + '</span><span>"' + esc(i.span || '') +
+        '"</span><p class="why">' + esc(i.why || '') + '</p></div>';
     });
     html += '</section>';
   }
-  if (d.rewrites && d.rewrites.length) {
+  const rewrites = (d.rewrites || []).filter(r => r && (r.text || r.approach));
+  if (rewrites.length) {
     html += '<section><p class="label">Rewrite options</p>';
-    d.rewrites.forEach((r, idx) => {
-      html += '<div class="card"><div class="rwhead"><span class="approach">' + esc(r.approach) +
+    rewrites.forEach((r, idx) => {
+      html += '<div class="card"><div class="rwhead"><span class="approach">' + esc(r.approach || '') +
         '</span><button class="copy" data-copy="' + idx + '">Copy</button></div>' +
-        '<p class="rw" id="rw-' + idx + '">' + esc(r.text) + '</p>' +
+        '<p class="rw" id="rw-' + idx + '">' + esc(r.text || '') + '</p>' +
         (r.note ? '<p class="note">' + esc(r.note) + '</p>' : '') + '</div>';
     });
     html += '</section>';

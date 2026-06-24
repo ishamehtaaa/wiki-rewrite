@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import { Readable } from 'node:stream';
 
 const app = express();
 app.use(express.json({ limit: '256kb' }));
@@ -22,8 +23,11 @@ app.post('/api/rewrite', async (req, res) => {
       },
       body: JSON.stringify(req.body)
     });
-    const text = await upstream.text();
-    res.status(upstream.status).type('application/json').send(text);
+    res.status(upstream.status);
+    const ct = upstream.headers.get('content-type');
+    if (ct) res.setHeader('content-type', ct);
+    if (upstream.body) Readable.fromWeb(upstream.body).pipe(res);
+    else res.end();
   } catch (e) {
     res.status(502).json({ error: { message: 'Proxy failed: ' + e.message } });
   }
