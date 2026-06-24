@@ -1,0 +1,15 @@
+# LOCAL DEV — app only, served directly on http://localhost:2000.
+# No Caddy, no TLS.
+#   cp .env.example .env   # add your ANTHROPIC_API_KEY
+#   docker compose -f docker-compose.dev.yml up --build
+#   -> open http://localhost:2000
+services:
+  app:
+    build: .
+    container_name: wiki-dev
+    restart: unless-stopped
+    ports:
+      - "2000:2000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - PORT=2000

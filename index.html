@@ -84,8 +84,23 @@ const SYS = `You are an editing assistant for a Wikipedia editor cleaning up AI-
 1. Identify concrete problems against Wikipedia's Manual of Style: peacock/puffery terms (WP:PEACOCK), weasel words (WP:WEASEL), editorializing, vague intensifiers, unsupported evaluative claims, redundancy/restatement, promotional tone, non-neutral POV. Be specific about which words are the problem.
 2. Give 2-3 rewrites in neutral encyclopedic register, each taking a DIFFERENT approach (e.g. one conservative/minimal, one that strips all evaluation, one that notes what needs a source) — not near-identical versions.
 Do NOT invent facts. If a claim sounds unverifiable or potentially fabricated, flag it for source verification rather than just rewording it.
-Respond ONLY with a JSON object, no preamble, no markdown fences:
-{"issues":[{"span":"exact phrase","type":"short label","why":"one sentence"}],"rewrites":[{"approach":"2-4 word label","text":"rewritten sentence","note":"optional caveat or empty string"}],"verification_flags":["claims to check, or empty array"]}`;
+Field guidance: issues[].span is the exact problem phrase, issues[].type a short label, issues[].why one sentence; rewrites[].approach a 2-4 word label, rewrites[].text the rewritten sentence, rewrites[].note an optional caveat or empty string; verification_flags lists claims to check (empty array if none).`;
+
+const SCHEMA = {
+  type: "object", additionalProperties: false,
+  properties: {
+    issues: { type: "array", items: {
+      type: "object", additionalProperties: false,
+      properties: { span: { type: "string" }, type: { type: "string" }, why: { type: "string" } },
+      required: ["span", "type", "why"] } },
+    rewrites: { type: "array", items: {
+      type: "object", additionalProperties: false,
+      properties: { approach: { type: "string" }, text: { type: "string" }, note: { type: "string" } },
+      required: ["approach", "text", "note"] } },
+    verification_flags: { type: "array", items: { type: "string" } }
+  },
+  required: ["issues", "rewrites", "verification_flags"]
+};
 
 async function run() {
   const text = srcEl.value.trim();
@@ -97,8 +112,9 @@ async function run() {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
+        max_tokens: 4096,
         system: SYS,
+        output_config: { format: { type: 'json_schema', schema: SCHEMA } },
         messages: [{ role: 'user', content: 'Sentence(s):\n' + text }]
       })
     });
@@ -108,8 +124,15 @@ async function run() {
       btn.disabled = false; return;
     }
     const data = await resp.json();
-    const raw = data.content.filter(i => i.type === 'text').map(i => i.text).join('\n');
-    render(JSON.parse(raw.replace(/```json|```/g, '').trim()));
+    if (data.stop_reason === 'max_tokens') {
+      status.textContent = 'Response was cut off — try fewer sentences at once.';
+      btn.disabled = false; return;
+    }
+    const raw = data.content.filter(i => i.type === 'text').map(i => i.text).join('');
+    let parsed;
+    try { parsed = JSON.parse(raw); }
+    catch { status.textContent = 'Could not parse the response. Please retry.'; btn.disabled = false; return; }
+    render(parsed);
     status.textContent = '';
   } catch (e) {
     status.textContent = 'Failed: ' + e.message + ' — is the server running?';
