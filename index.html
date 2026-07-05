@@ -33,14 +33,9 @@
     <section class="pane">
       <div class="pane-head">
         <span class="pane-title">Source draft</span>
-        <div class="tabs" id="tabs" hidden>
-          <button class="tab" id="editTab">Edit</button>
-          <button class="tab active" id="flagTab">Flagged<span class="count" id="issueCount">0</span></button>
-        </div>
       </div>
       <div class="npv-body">
         <textarea id="input" class="npv-ta" placeholder="Paste your AI-generated Wikipedia text here…"></textarea>
-        <div class="prose" id="annotated" hidden></div>
       </div>
     </section>
 
@@ -58,21 +53,8 @@
         </div>
       </div>
     </section>
-
-    <!-- ISSUES -->
-    <aside class="pane">
-      <div class="pane-head">
-        <span class="pane-title">What changed</span>
-      </div>
-      <div class="npv-body">
-        <div id="groups" hidden></div>
-        <div class="legend" id="legend">
-          <div class="legend-intro">Neutralizer flags the tells of machine-generated, non-encyclopaedic prose:</div>
-        </div>
-      </div>
-    </aside>
   </main>
 
-<script src="app.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>

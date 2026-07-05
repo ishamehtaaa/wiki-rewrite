@@ -4,7 +4,8 @@
   "description": "Local sentence-rewrite assistant for Wikipedia editing — flags MOS issues and suggests encyclopedic rewrites.",
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "evals": "node evals/run.js"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
