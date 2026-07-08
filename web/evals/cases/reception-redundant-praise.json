@@ -1,0 +1,8 @@
+{
+  "name": "reception section with redundant praise",
+  "notes": "Four reviewers make the same evaluative point; at most two should survive.",
+  "maxRatio": 0.6,
+  "mustKeep": ["1998"],
+  "atMostOf": { "terms": ["Smith", "Jones", "Brown", "White"], "max": 2, "label": "redundant endorsements" },
+  "input": "Published in 1998, the book was met with universal acclaim from critics around the world. In his review for The Times, John Smith called it “a towering achievement that will echo through the ages.” Writing in The Guardian, Mary Jones described it as “essential reading for anyone who cares about history.” Similarly, the historian Paul Brown hailed it as “a masterpiece of the genre,” while the critic Ann White celebrated its “breathtaking scope and ambition.” It is widely regarded as one of the most influential works of the decade, and its rich tapestry of themes continues to inspire readers worldwide."
+}

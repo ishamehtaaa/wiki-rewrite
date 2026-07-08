@@ -1,10 +1,16 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import express from 'express';
 import { Readable } from 'node:stream';
+import { fileURLToPath } from 'node:url';
+
+const here = p => fileURLToPath(new URL(p, import.meta.url));
+dotenv.config({ path: here('../.env') }); // secrets live at the repo root
 
 const app = express();
 app.use(express.json({ limit: '256kb' }));
-app.use(express.static('.')); // serves index.html from this folder
+app.use(express.static(here('.'))); // serves index.html from web/
+// Read-only view of the Node↔Python contract layer (exemplars, thresholds).
+app.use('/artifacts', express.static(here('../artifacts')));
 
 const KEY = process.env.ANTHROPIC_API_KEY;
 if (!KEY) {

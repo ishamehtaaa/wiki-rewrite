@@ -1,4 +1,4 @@
-import { SYS, CRITIC_SYS } from './rules.js';
+import { runPipeline, MODEL } from './lib/pipeline.js';
 
 const escHtml = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const toHtml = s => escHtml(s).replace(/\n/g, '<br>');
@@ -22,7 +22,7 @@ async function callClaude(system, userText, onDelta) {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-sonnet-5',
+      model: MODEL,
       max_tokens: 4096,
       stream: true,
       system,
@@ -56,7 +56,9 @@ async function callClaude(system, userText, onDelta) {
   return acc;
 }
 
-const criticPassed = review => /^PASS\b/.test(review) && review.length < 10;
+// Thrown from pipeline callbacks to abandon a run superseded by reset or a
+// newer run, before paying for the second API call.
+class Stale extends Error {}
 
 async function onClean() {
   const text = inputEl.value.trim();
@@ -66,22 +68,24 @@ async function onClean() {
   showOutput('');
   statusEl.textContent = 'Rewriting…';
   try {
-    const draft = (await callClaude(SYS, 'Text:\n' + text, partial => {
-      if (id === runId) showOutput(toHtml(partial));
-    })).trim();
+    // The draft stays on screen while the review runs; it is swapped only
+    // if the critic corrects it.
+    const { final, criticRevised } = await runPipeline(text, callClaude, {
+      onDraftDelta: partial => {
+        if (id !== runId) throw new Stale();
+        showOutput(toHtml(partial));
+      },
+      onDraft: draft => {
+        if (id !== runId) throw new Stale();
+        showOutput(toHtml(draft));
+        statusEl.textContent = 'Reviewing…';
+      },
+    });
     if (id !== runId) return;
-    showOutput(toHtml(draft));
-    // Second pass: a critic reviews the draft against the same neutrality
-    // test and corrects anything the first pass missed. The draft stays on
-    // screen while the review runs; it is swapped only if corrected.
-    statusEl.textContent = 'Reviewing…';
-    const review = (await callClaude(CRITIC_SYS, 'Original:\n' + text + '\n\nRewrite:\n' + draft)).trim();
-    if (id !== runId) return;
-    const passed = criticPassed(review);
-    showOutput(toHtml(passed ? draft : review));
-    statusEl.textContent = passed ? '' : 'revised in review';
+    showOutput(toHtml(final));
+    statusEl.textContent = criticRevised ? 'revised in review' : '';
   } catch (e) {
-    if (id !== runId) return;
+    if (e instanceof Stale || id !== runId) return;
     console.error('Rewrite failed:', e);
     statusEl.textContent = 'Rewrite failed — check that the server is running';
   } finally {

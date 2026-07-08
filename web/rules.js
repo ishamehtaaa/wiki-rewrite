@@ -1,36 +1,13 @@
 // Single source of truth for what "neutral" means, used by the browser app
 // (app.js) and the eval harness (evals/run.js). To improve rewrite quality,
 // change this file and run `npm run evals` — don't patch prompts per example.
+//
+// Stance vocabulary lives in shared/stance.json (compiled by lib/stance.js).
+// It is NOT used for rewriting — the prompts below work from the neutrality
+// test, which generalizes past any list. The vocabulary exists so the eval
+// harness can assert that no known stance language survives in output.
 
 import { EXEMPLARS } from './exemplars.js';
-
-// Stance vocabulary by category. NOT used for rewriting — the prompts below
-// work from the neutrality test, which generalizes past any list. These exist
-// so the eval harness can assert that no known stance language survives in
-// output. A category may supply a prebuilt `re` when \b + case-insensitive
-// matching is wrong for it.
-export const STANCE = [
-  { key:'puffery',
-    terms:['world-renowned','renowned','world-famous','world-class','cutting-edge','state-of-the-art','revolutionary','revolutionized','groundbreaking','ground-breaking','innovative','pioneering','prestigious','acclaimed','critically acclaimed','celebrated','iconic','legendary','visionary','unparalleled','unrivaled','unrivalled','unmatched','incomparable','best-in-class','top-tier','premier','a leading','the leading','industry-leading','market-leading','world-leading','foremost','seamless','robust','stunning','breathtaking','extraordinary','exceptional','remarkable','outstanding','magnificent','masterpiece','elite','flagship','game-changing','transformative','trailblazing','next-generation','one-of-a-kind','sought-after','esteemed','highly regarded','influential','inspirational','award-winning'] },
-  { key:'editorial',
-    terms:['notably','importantly','interestingly','arguably','clearly','obviously','undoubtedly','of course','indeed','certainly','remarkably','impressively','truly','absolutely','simply','genuinely','essentially','ultimately','furthermore','moreover','additionally','in essence','it is worth noting','it should be noted','it is important to note','it’s important to note','it\'s important to note','needless to say','nothing short of','without a doubt','it goes without saying'] },
-  { key:'slop',
-    terms:['delve into','delves into','delved into','delving into','tapestry','boasts','boasting','nestled','vibrant','bustling','pivotal','crucial','vital','ever-evolving','fast-paced','dynamic landscape','myriad','plethora','embark on','embarked on','beacon of','underscores','underscoring','highlights the importance of','seamlessly','holistic','comprehensive','showcases','showcasing','showcased','leverages','leveraging','fosters','fostering','captivating','captivates','solidified','cemented','garnered','rich history','rich cultural heritage','profound','invaluable','must-visit','must-see','hidden gem','testament to','stands as','serves as a reminder','left an indelible mark','continues to inspire','continues to captivate','continues to resonate','in conclusion','in summary','look no further','whether you’re','whether you\'re','whether you are'] },
-  { key:'unsourced',
-    terms:['many believe','some say','it is said','experts say','experts agree','critics praise','praised by many','widely regarded','widely considered','widely known','widely recognized','considered by many','generally regarded','one of the most','some of the most','is known for','is famous for','often described as','frequently described as','frequently cited'] },
-  { key:'drama',
-    terms:['treacherous','treachery','traitorous','traitor','traitors','heroic','heroically','valiant','valiantly','gallant','gallantly','fearless','fearlessly','daring','audacious','cunning','ruthless','ruthlessly','brutal','fateful','momentous','glorious','triumphant','triumphantly','vanquished','doomed','swift action','decisive action','decisive blow','crushing blow','crushing defeat','stunning victory','fierce resistance','bitter struggle','desperate struggle','epic battle','epic struggle','vigilance','turned the tide','turning the tide','turn the tide','against all odds','in the nick of time','at the eleventh hour','hung in the balance','sealed the fate','sealed their fate','met their end','faced challenges from','faced threats from'] },
-  { key:'voice',
-    // Case-sensitive so all-caps acronyms ("US") are not read as pronouns.
-    re: /\b(?:I|[Ww]e|[Oo]ur|[Uu]s|[Mm]y|[Oo]urselves)\b/g },
-];
-
-const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const termRegex = (terms, flags = 'gi') =>
-  new RegExp('\\b(?:' + [...terms].sort((a, b) => b.length - a.length).map(escRe).join('|') + ')\\b', flags);
-for (const cat of STANCE) {
-  if (!cat.re) cat.re = termRegex(cat.terms);
-}
 
 // The core principle both passes apply. Deliberately one test plus a handful
 // of conversions — not a term list. Lists teach the model that everything

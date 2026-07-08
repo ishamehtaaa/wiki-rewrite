@@ -23,8 +23,8 @@
 
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { api, fromUrlOrTitle, categoryMembers, stripWikitext, extractTagRegion, trimToSentence, articleUrl } from './detector/wiki.js';
-import { STANCE } from './rules.js';
+import { api, fromUrlOrTitle, categoryMembers, stripWikitext, extractTagRegion, trimToSentence, articleUrl } from '../detector/wiki.js';
+import { stanceHits } from './lib/stance.js';
 
 const MAX_CHARS = 1200;
 const MIN_CHARS = 300;
@@ -56,19 +56,6 @@ function listCategory(s) {
   return null;
 }
 
-// Same quote-blanking the evals use: attributed quotations may contain
-// evaluative language without the article voice being at fault.
-const withoutQuotes = (s) => s.replace(/[“"][^“”"]*[”"]/g, '“…”');
-function stanceHits(text) {
-  const prose = withoutQuotes(text);
-  const hits = [];
-  for (const cat of STANCE) {
-    const m = prose.match(new RegExp(cat.re.source, cat.re.flags));
-    if (m) hits.push(`${cat.key}: ${[...new Set(m)].join(', ')}`);
-  }
-  return hits;
-}
-
 async function leadOf(title) {
   const params = { action: 'query', prop: 'revisions', rvprop: 'content', rvslots: 'main', rvlimit: '1', titles: title };
   if (before) params.rvstart = `${before}T00:00:00Z`;
@@ -92,7 +79,7 @@ async function tryAdd(title) {
   const hits = stanceHits(text);
   if (hits.length) {
     console.log(`✗ ${title} — skipped: the lead contains stance vocabulary the evals ban, so it would model the wrong register`);
-    for (const h of hits) console.log(`    ${h}`);
+    for (const h of hits) console.log(`    ${h.key}: ${h.hits.join(', ')}`);
     return false;
   }
   const entry = { title, url: articleUrl(title), fetched: before ? `revision before ${before}` : 'latest revision', text };

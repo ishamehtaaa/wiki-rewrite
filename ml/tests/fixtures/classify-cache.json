@@ -1,0 +1,462 @@
+{
+  "e5": {
+    "958b553af6f951dc": {
+      "p": 0.9084,
+      "file": "ai/ahmed-metani.txt"
+    },
+    "7a17f4719b6cc6d6": {
+      "p": 0.4064,
+      "file": "ai/billy-monama.txt"
+    },
+    "e30d0218c02855eb": {
+      "p": 0.6561,
+      "file": "ai/bloomfield-square.txt"
+    },
+    "da80a33e72134ffa": {
+      "p": 0.8683,
+      "file": "ai/braj-cuisine.txt"
+    },
+    "17c1b455ddd0c433": {
+      "p": 0.9473,
+      "file": "ai/dan-kahn.txt"
+    },
+    "d44429c58004d8ac": {
+      "p": 0.9272,
+      "file": "ai/david-g-ruffer.txt"
+    },
+    "9327b2ebd1e67ee3": {
+      "p": 0.9273,
+      "file": "ai/dissimilatory-iron-reducing-bacteria.txt"
+    },
+    "6092bed1ce48c9dd": {
+      "p": 0.5423,
+      "file": "ai/eastern-shores-isimangaliso-wetland-park.txt"
+    },
+    "e38656d872ce0dee": {
+      "p": 0.8788,
+      "file": "ai/fort-lowell-union-church.txt"
+    },
+    "ca23d3aae1c860d5": {
+      "p": 0.8874,
+      "file": "ai/gholamhossein-yousefi.txt"
+    },
+    "7a1e04f6e91e146d": {
+      "p": 0.8634,
+      "file": "ai/history-of-asean.txt"
+    },
+    "fae5e9b3096cf67c": {
+      "p": 0.963,
+      "file": "ai/kat-tadahiro.txt"
+    },
+    "f0075e804c1ad4be": {
+      "p": 0.9025,
+      "file": "ai/lincoln-theater-los-angeles.txt"
+    },
+    "5da249cd1ab787f4": {
+      "p": 0.864,
+      "file": "ai/list-of-works-by-willy-tiedjen.txt"
+    },
+    "acc5b143af4c6315": {
+      "p": 0.9267,
+      "file": "ai/obey-chimuka.txt"
+    },
+    "4a4dae8d2ad7ebd1": {
+      "p": 0.928,
+      "file": "ai/pol-anglada.txt"
+    },
+    "9c6f72c379d3b3ae": {
+      "p": 0.815,
+      "file": "ai/program-of-the-national-council-of-the-resistance.txt"
+    },
+    "c8fd82407735bee6": {
+      "p": 0.9058,
+      "file": "ai/public-holidays-in-palestine.txt"
+    },
+    "04b2b910353182d0": {
+      "p": 0.3753,
+      "file": "ai/seed-claude-history-para.txt"
+    },
+    "062dbadd8f6ffbd4": {
+      "p": 0.956,
+      "file": "ai/seed-claude-slop-city.txt"
+    },
+    "0b609131ede7976d": {
+      "p": 0.6987,
+      "file": "ai/seed-claude-subtle-bio.txt"
+    },
+    "a7eed0088c276eb7": {
+      "p": 0.7753,
+      "file": "ai/t-rgovi-te-princely-court.txt"
+    },
+    "6aed6b7a87bab688": {
+      "p": 0.9148,
+      "file": "ai/thai-u21-league.txt"
+    },
+    "e84a2050df53a9f9": {
+      "p": 0.9416,
+      "file": "ai/the-sermon-on-the-mount-book.txt"
+    },
+    "70e168af30e73246": {
+      "p": 0.9512,
+      "file": "ai/this-arab-is-queer.txt"
+    },
+    "34cea777d9581cec": {
+      "p": 0.7737,
+      "file": "human/1985-world-snooker-championship.txt"
+    },
+    "fc25eea2c24784a5": {
+      "p": 0.5172,
+      "file": "human/2001-02-south-west-indian-ocean-cyclone-season.txt"
+    },
+    "dd849d627a9b760f": {
+      "p": 0.7787,
+      "file": "human/2006-pacific-hurricane-season.txt"
+    },
+    "5ff3f0b30332839f": {
+      "p": 0.8809,
+      "file": "human/2019-fa-cup-final.txt"
+    },
+    "4816f2669aca695a": {
+      "p": 0.9137,
+      "file": "human/38th-welsh-infantry-division.txt"
+    },
+    "10daaed772a1418f": {
+      "p": 0.3001,
+      "file": "human/american-arts-commemorative-series-medallions.txt"
+    },
+    "0bf799162d571265": {
+      "p": 0.3279,
+      "file": "human/apollo-10.txt"
+    },
+    "4f78644b0449aebb": {
+      "p": 0.2365,
+      "file": "human/argosy-magazine.txt"
+    },
+    "04fb682b574099be": {
+      "p": 0.8271,
+      "file": "human/boeing-c-17-globemaster-iii-in-australian-service.txt"
+    },
+    "5096248d897e729c": {
+      "p": 0.8402,
+      "file": "human/bog-turtle.txt"
+    },
+    "511e55b0b0412c31": {
+      "p": 0.4812,
+      "file": "human/born-to-run.txt"
+    },
+    "910d405f559a1024": {
+      "p": 0.87,
+      "file": "human/carlisle-finch.txt"
+    },
+    "8f2cb9c98cf80f4f": {
+      "p": 0.8282,
+      "file": "human/courageous-class-aircraft-carrier.txt"
+    },
+    "307043560bf665cd": {
+      "p": 0.6603,
+      "file": "human/css-general-earl-van-dorn.txt"
+    },
+    "59d1e3d97bc1caae": {
+      "p": 0.8807,
+      "file": "human/dreadnought.txt"
+    },
+    "eadf9d1029ebcbdd": {
+      "p": 0.7114,
+      "file": "human/eisenhower-dollar.txt"
+    },
+    "8c39f814c4b74f91": {
+      "p": 0.7816,
+      "file": "human/fourth-test-1948-ashes-series.txt"
+    },
+    "f255dbe60d954469": {
+      "p": 0.8779,
+      "file": "human/jeannette-expedition.txt"
+    },
+    "f580420c7fc08418": {
+      "p": 0.5762,
+      "file": "human/kaze-to-ki-no-uta.txt"
+    },
+    "5340acb812db552c": {
+      "p": 0.9365,
+      "file": "human/lion.txt"
+    },
+    "bf4a4c8fb6fc33bb": {
+      "p": 0.9428,
+      "file": "human/major-urinary-proteins.txt"
+    },
+    "18f556fe30a477dc": {
+      "p": 0.8864,
+      "file": "human/nihonium.txt"
+    },
+    "1bb9175e879c790b": {
+      "p": 0.8818,
+      "file": "human/northern-bald-ibis.txt"
+    },
+    "4b156fa2423d6ecc": {
+      "p": 0.3745,
+      "file": "human/oriental-stories.txt"
+    },
+    "d6fd63ad443142fa": {
+      "p": 0.8161,
+      "file": "human/parinda.txt"
+    },
+    "415b029d76f02ada": {
+      "p": 0.3998,
+      "file": "human/roderic-dallas.txt"
+    },
+    "4114f80f7121f5ca": {
+      "p": 0.524,
+      "file": "human/seed-ashford-2018.txt"
+    },
+    "31fcfdf1fa284b8d": {
+      "p": 0.452,
+      "file": "human/seed-folkestone-2018.txt"
+    },
+    "e39b0c648287b5e2": {
+      "p": 0.388,
+      "file": "human/seed-moby-dick.txt"
+    },
+    "d497746005e88202": {
+      "p": 0.7095,
+      "file": "human/sms-l-tzow.txt"
+    },
+    "bcfb17f8cb36f0f5": {
+      "p": 0.9148,
+      "file": "human/the-cat-and-the-canary-1927-film.txt"
+    },
+    "169bf6030e105ff6": {
+      "p": 0.5757,
+      "file": "human/the-green-child.txt"
+    }
+  },
+  "desklib": {
+    "958b553af6f951dc": {
+      "p": 0.3406,
+      "file": "ai/ahmed-metani.txt"
+    },
+    "7a17f4719b6cc6d6": {
+      "p": 0.2574,
+      "file": "ai/billy-monama.txt"
+    },
+    "e30d0218c02855eb": {
+      "p": 0.9964,
+      "file": "ai/bloomfield-square.txt"
+    },
+    "da80a33e72134ffa": {
+      "p": 0.2466,
+      "file": "ai/braj-cuisine.txt"
+    },
+    "17c1b455ddd0c433": {
+      "p": 0.9059,
+      "file": "ai/dan-kahn.txt"
+    },
+    "d44429c58004d8ac": {
+      "p": 0.9995,
+      "file": "ai/david-g-ruffer.txt"
+    },
+    "9327b2ebd1e67ee3": {
+      "p": 0.9834,
+      "file": "ai/dissimilatory-iron-reducing-bacteria.txt"
+    },
+    "6092bed1ce48c9dd": {
+      "p": 0.0582,
+      "file": "ai/eastern-shores-isimangaliso-wetland-park.txt"
+    },
+    "e38656d872ce0dee": {
+      "p": 0.7338,
+      "file": "ai/fort-lowell-union-church.txt"
+    },
+    "ca23d3aae1c860d5": {
+      "p": 0.9455,
+      "file": "ai/gholamhossein-yousefi.txt"
+    },
+    "7a1e04f6e91e146d": {
+      "p": 0.9979,
+      "file": "ai/history-of-asean.txt"
+    },
+    "fae5e9b3096cf67c": {
+      "p": 1.0,
+      "file": "ai/kat-tadahiro.txt"
+    },
+    "f0075e804c1ad4be": {
+      "p": 0.9947,
+      "file": "ai/lincoln-theater-los-angeles.txt"
+    },
+    "5da249cd1ab787f4": {
+      "p": 0.9931,
+      "file": "ai/list-of-works-by-willy-tiedjen.txt"
+    },
+    "acc5b143af4c6315": {
+      "p": 0.8285,
+      "file": "ai/obey-chimuka.txt"
+    },
+    "4a4dae8d2ad7ebd1": {
+      "p": 0.4701,
+      "file": "ai/pol-anglada.txt"
+    },
+    "9c6f72c379d3b3ae": {
+      "p": 0.0559,
+      "file": "ai/program-of-the-national-council-of-the-resistance.txt"
+    },
+    "c8fd82407735bee6": {
+      "p": 0.9976,
+      "file": "ai/public-holidays-in-palestine.txt"
+    },
+    "04b2b910353182d0": {
+      "p": 0.999,
+      "file": "ai/seed-claude-history-para.txt"
+    },
+    "062dbadd8f6ffbd4": {
+      "p": 1.0,
+      "file": "ai/seed-claude-slop-city.txt"
+    },
+    "0b609131ede7976d": {
+      "p": 0.9909,
+      "file": "ai/seed-claude-subtle-bio.txt"
+    },
+    "a7eed0088c276eb7": {
+      "p": 0.0071,
+      "file": "ai/t-rgovi-te-princely-court.txt"
+    },
+    "6aed6b7a87bab688": {
+      "p": 0.9998,
+      "file": "ai/thai-u21-league.txt"
+    },
+    "e84a2050df53a9f9": {
+      "p": 0.9998,
+      "file": "ai/the-sermon-on-the-mount-book.txt"
+    },
+    "70e168af30e73246": {
+      "p": 0.9994,
+      "file": "ai/this-arab-is-queer.txt"
+    },
+    "34cea777d9581cec": {
+      "p": 0.016,
+      "file": "human/1985-world-snooker-championship.txt"
+    },
+    "fc25eea2c24784a5": {
+      "p": 0.0288,
+      "file": "human/2001-02-south-west-indian-ocean-cyclone-season.txt"
+    },
+    "dd849d627a9b760f": {
+      "p": 0.6514,
+      "file": "human/2006-pacific-hurricane-season.txt"
+    },
+    "5ff3f0b30332839f": {
+      "p": 0.6402,
+      "file": "human/2019-fa-cup-final.txt"
+    },
+    "4816f2669aca695a": {
+      "p": 0.2644,
+      "file": "human/38th-welsh-infantry-division.txt"
+    },
+    "10daaed772a1418f": {
+      "p": 0.0124,
+      "file": "human/american-arts-commemorative-series-medallions.txt"
+    },
+    "0bf799162d571265": {
+      "p": 0.0191,
+      "file": "human/apollo-10.txt"
+    },
+    "4f78644b0449aebb": {
+      "p": 0.1144,
+      "file": "human/argosy-magazine.txt"
+    },
+    "04fb682b574099be": {
+      "p": 0.9961,
+      "file": "human/boeing-c-17-globemaster-iii-in-australian-service.txt"
+    },
+    "5096248d897e729c": {
+      "p": 0.8738,
+      "file": "human/bog-turtle.txt"
+    },
+    "511e55b0b0412c31": {
+      "p": 0.2393,
+      "file": "human/born-to-run.txt"
+    },
+    "910d405f559a1024": {
+      "p": 0.6168,
+      "file": "human/carlisle-finch.txt"
+    },
+    "8f2cb9c98cf80f4f": {
+      "p": 0.0662,
+      "file": "human/courageous-class-aircraft-carrier.txt"
+    },
+    "307043560bf665cd": {
+      "p": 0.046,
+      "file": "human/css-general-earl-van-dorn.txt"
+    },
+    "59d1e3d97bc1caae": {
+      "p": 0.1533,
+      "file": "human/dreadnought.txt"
+    },
+    "eadf9d1029ebcbdd": {
+      "p": 0.0029,
+      "file": "human/eisenhower-dollar.txt"
+    },
+    "8c39f814c4b74f91": {
+      "p": 0.0235,
+      "file": "human/fourth-test-1948-ashes-series.txt"
+    },
+    "f255dbe60d954469": {
+      "p": 0.0126,
+      "file": "human/jeannette-expedition.txt"
+    },
+    "f580420c7fc08418": {
+      "p": 0.036,
+      "file": "human/kaze-to-ki-no-uta.txt"
+    },
+    "5340acb812db552c": {
+      "p": 0.8946,
+      "file": "human/lion.txt"
+    },
+    "bf4a4c8fb6fc33bb": {
+      "p": 0.293,
+      "file": "human/major-urinary-proteins.txt"
+    },
+    "18f556fe30a477dc": {
+      "p": 0.0602,
+      "file": "human/nihonium.txt"
+    },
+    "1bb9175e879c790b": {
+      "p": 0.2209,
+      "file": "human/northern-bald-ibis.txt"
+    },
+    "4b156fa2423d6ecc": {
+      "p": 0.0113,
+      "file": "human/oriental-stories.txt"
+    },
+    "d6fd63ad443142fa": {
+      "p": 0.0123,
+      "file": "human/parinda.txt"
+    },
+    "415b029d76f02ada": {
+      "p": 0.0993,
+      "file": "human/roderic-dallas.txt"
+    },
+    "4114f80f7121f5ca": {
+      "p": 0.0316,
+      "file": "human/seed-ashford-2018.txt"
+    },
+    "31fcfdf1fa284b8d": {
+      "p": 0.2228,
+      "file": "human/seed-folkestone-2018.txt"
+    },
+    "e39b0c648287b5e2": {
+      "p": 0.0101,
+      "file": "human/seed-moby-dick.txt"
+    },
+    "d497746005e88202": {
+      "p": 0.005,
+      "file": "human/sms-l-tzow.txt"
+    },
+    "bcfb17f8cb36f0f5": {
+      "p": 0.0179,
+      "file": "human/the-cat-and-the-canary-1927-film.txt"
+    },
+    "169bf6030e105ff6": {
+      "p": 0.2274,
+      "file": "human/the-green-child.txt"
+    }
+  }
+}

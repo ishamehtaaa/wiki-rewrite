@@ -4,7 +4,7 @@
     {
       "name": "wiki-rewrite",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["server.js"],
+      "runtimeArgs": ["web/server.js"],
       "port": 2000
     }
   ]

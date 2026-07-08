@@ -2,7 +2,21 @@
 node_modules/
 *.log
 .DS_Store
- 
+
+# eval harness caches (web/evals)
+web/evals/.cache.json
+web/evals/.last-run.json
+
+# Node↔Python contract layer: sweeps are bulk, regenerable outputs
+artifacts/sweeps/
+
+# ml package: venv, score cache, corpus texts (re-fetchable via manifests),
+# training runs
+ml/.venv/
+ml/data/
+ml/artifacts/runs/
+
+# legacy detector (deleted as ml/ absorbs each capability)
 detector/.scores-cache.json
 detector/venv/
 detector/.classify-cache.json

@@ -46,7 +46,7 @@ export function startScorer(model) {
 
 export function loadCalibration(model) {
   try {
-    return JSON.parse(readFileSync(new URL('thresholds.json', import.meta.url), 'utf8'))[model] ?? null;
+    return JSON.parse(readFileSync(new URL('../artifacts/thresholds.json', import.meta.url), 'utf8'))[model] ?? null;
   } catch {
     return null;
   }

@@ -1,0 +1,7 @@
+{
+  "name": "dramatized history (siege of Trichinopoly)",
+  "notes": "Nearly every sentence is a checkable fact, so consolidation can't reach 0.5 — the failure mode being tested is epic narration, not padding. Good runs land at 0.75–0.82 of input; the cap only guards against full-length paraphrase.",
+  "maxRatio": 0.85,
+  "mustKeep": ["1660", "Chokkanatha", "Lingama", "Shahaji", "12,000", "7,000", "Gingee"],
+  "input": "The siege of Trichinopoly in 1660 was a conflict during Chokkanatha Nayak's reign aided by the treacherous general Lingama Nayak, a Bijapuri army led by Shahaji laid siege to the fort with a combined force of 12,000 infantry and 7,000 cavalry. The defenders faced challenges from both the besiegers and conspirators within their ranks. Chokkanatha Nayak's vigilance exposed plots, leading to the execution of traitors and the reorganization of his administration. This swift action turned the tide forcing the retreat of the Bijapuri forces to Gingee."
+}

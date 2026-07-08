@@ -1,0 +1,6 @@
+{
+  "name": "promotional company bio",
+  "maxRatio": 0.6,
+  "mustKeep": ["Austin", "2012", "Jane Doe", "300", "2019"],
+  "input": "Nestled in the heart of Austin, Acme Robotics stands as a world-renowned pioneer in cutting-edge automation. Founded in 2012 by visionary engineer Jane Doe, the company boasts over 300 employees and garnered the prestigious National Robotics Award in 2019. Many believe Acme is a testament to the power of innovation, and experts agree that its impact on the ever-evolving robotics landscape has been nothing short of remarkable. Whether you're a startup founder or an industry veteran, Acme's groundbreaking solutions seamlessly transform how businesses operate."
+}
