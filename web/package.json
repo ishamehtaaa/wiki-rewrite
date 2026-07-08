@@ -7,8 +7,8 @@
     "start": "node server.js",
     "evals": "node evals/run.js",
     "fetch-exemplars": "node fetch-exemplars.js",
-    "detect": "node ../detector/detect.js",
-    "calibrate": "../detector/venv/bin/python ../detector/classify.py --model=desklib",
+    "detect": "uv run --project ../ml wikidetect detect",
+    "calibrate": "uv run --project ../ml wikidetect calibrate",
     "fetch-samples": "node ../detector/fetch-samples.js",
     "sweep": "node ../detector/sweep.js"
   },
