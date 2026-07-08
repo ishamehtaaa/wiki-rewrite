@@ -238,10 +238,10 @@ async def harvest(version: str = "v1", months: int = 0, negatives_per_positive: 
     quotas = {s: int(n_neg_target * w) for s, w in STRATA_WEIGHTS.items()}
     print(f"negatives target: {n_neg_target} {quotas}")
 
-    async def fill(stratum: str, candidates: list[str]):
+    async def fill(stratum: str, candidates: list[str], quota: int) -> int:
         got = 0
         for t in candidates:
-            if got >= quotas[stratum]:
+            if got >= quota:
                 break
             if ("human", t) in have or t in blocked:
                 continue
@@ -251,16 +251,30 @@ async def harvest(version: str = "v1", months: int = 0, negatives_per_positive: 
                 have.add(("human", t))
                 got += 1
         save_manifest(version, rows)
-        print(f"  stratum {stratum}: +{got}")
+        print(f"  stratum {stratum}: +{got} (quota {quota})")
+        return got
 
-    # matched: pre-cutoff leads of the very pages that got tagged
+    # matched: pre-cutoff leads of the very pages that got tagged. Articles
+    # CREATED in the AI era have no pre-cutoff revision, so this stratum
+    # underfills by design; shortfalls roll into the later strata.
     matched_candidates = [r["title"] for r in rows if r["label"] == "ai" and r["title"]]
     random.shuffle(matched_candidates)
-    await fill("matched", matched_candidates)
-    await fill("random", await _random_titles(client, quotas["random"] * 4))
+    got = await fill("matched", matched_candidates, quotas["matched"])
+    shortfall = quotas["matched"] - got
+
+    # random articles skew post-cutoff/too-short: top up the pool until the
+    # quota is met or attempts run out
+    quota = quotas["random"] + shortfall
+    got, attempts = 0, 0
+    while got < quota and attempts < quota * 20:
+        batch = await _random_titles(client, 50)
+        attempts += 50
+        got += await fill("random", batch, quota - got)
+    shortfall = quota - got
+
     fa = await client.category_members(FA_CATEGORY)
     random.shuffle(fa)
-    await fill("fa", fa)
+    await fill("fa", fa, quotas["fa"] + shortfall)
 
     await client.aclose()
     counts = {}
@@ -310,9 +324,15 @@ async def fetch(version: str = "v1"):
 
 def assign_splits(version: str = "v1", seed: int = 7, ratios=(0.8, 0.1, 0.1)):
     """Grouped by title (an article never straddles splits), stratified by
-    (label, source), seeded. Rows with split already set (e.g. v0 test rows
-    merged in) are left alone."""
+    (label, source), seeded. Rows with split already set are left alone.
+
+    The frozen corpus-v0 benchmark rows are merged in as permanent test rows
+    (leakage guard: nothing that calibrated the original detector may train
+    or tune its successor)."""
     rows = load_manifest(version)
+    if version != "v0":
+        present = {r["id"] for r in rows}
+        rows += [r for r in load_manifest("v0") if r["id"] not in present]
     rng = random.Random(seed)
     groups: dict[tuple, list[dict]] = {}
     for r in rows:
