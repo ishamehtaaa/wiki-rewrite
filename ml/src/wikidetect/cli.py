@@ -21,7 +21,7 @@ def cmd_calibrate(args):
     from .calibrate import calibrate, load_labeled_dir, report, score_samples, write_thresholds
     from .models import Scorer
 
-    samples_dir = Path(args.samples) if args.samples else config.REPO / "detector" / "samples"
+    samples_dir = Path(args.samples) if args.samples else config.ML / "corpus-v0"
     rows = load_labeled_dir(samples_dir)
     if not rows:
         sys.exit(f"no samples under {samples_dir}")

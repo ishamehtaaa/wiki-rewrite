@@ -120,7 +120,7 @@ def backfill_v0():
     nothing that calibrated the original detector may train its successor)."""
     from .cache import text_hash
 
-    samples = config.REPO / "detector" / "samples"
+    samples = config.ML / "corpus-v0"
     rows = []
     for label in ("ai", "human"):
         for f in sorted((samples / label).glob("*.txt")):

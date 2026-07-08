@@ -22,7 +22,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 FIXTURES = Path(__file__).parent / "fixtures"
-SAMPLES = Path(__file__).parents[2] / "detector" / "samples"
+SAMPLES = Path(__file__).parents[1] / "corpus-v0"
 TOL_CACHE = 2e-3   # vs old cached scores (old code rounded to 4dp)
 TOL_BATCH = 1e-3   # batched vs single
 
