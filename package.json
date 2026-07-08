@@ -5,7 +5,12 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "evals": "node evals/run.js"
+    "evals": "node evals/run.js",
+    "fetch-exemplars": "node fetch-exemplars.js",
+    "detect": "node detector/detect.js",
+    "calibrate": "detector/venv/bin/python detector/classify.py --model=desklib",
+    "fetch-samples": "node detector/fetch-samples.js",
+    "sweep": "node detector/sweep.js"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

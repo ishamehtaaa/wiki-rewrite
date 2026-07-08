@@ -1,0 +1,15 @@
+Iron is a metal with strong redox activity. It exists mainly in the natural environment in two forms: divalent iron (Fe(II)) and trivalent iron (Fe(III)). It is one of the most widely distributed metals on Earth. Although dissimilatory iron reduction is an anaerobic process in which Fe(III) serves as a terminal electron acceptor, it is for energy production instead of oxygen. It is a fundamental process in industrial and environmental contexts, playing a key role in processes including bioremediation, electrobiosynthesis, and biogeochemical recycling.
+
+Iron reduction occurs through two major mechanisms: abiotic (chemical) reduction and biotic (microbial) reduction. Among these, biologically processes are particularly significant in natural environments and are increasingly leveraged in sustainable technologies for metal recovery and environmental remediation.
+
+Iron-reducing bacteria are one of the most important bacterial groups present in various environments. Their main reaction is to reduce ferric iron to ferrous iron. Microorganisms play a vital role in the natural transformation of iron from solute to precipitate. Iron-reducing metabolic pathways can be carried out in aerobic or anaerobic environments, but IRB mainly operate under anaerobic and micro-aerobic conditions. As of 2016, more than 71 facultative IRB have been identified, with morphologies ranging from cocci to comma-shaped and rod-shaped.
+
+Under anaerobic conditions, IRB utilize ferric iron (Fe(III)) as a terminal electron acceptor to support the anaerobic degradation of various organic compounds. The consumption of these organic substrates and the production of CO2 are key indicators of their metabolic activity.
+
+Some IRB species, such as Shewanella putrefaciens, Shewanella algae, and certain Pseudomonas spp., are facultative anaerobes capable of utilizing multiple electron acceptors, including oxygen. However, when Fe3+ is used as the terminal electron acceptor, their efficiency in oxidizing organic electron donors is significantly reduced. In such cases, compounds like lactate and pyruvate are oxidized to acetate.
+
+Iron reduction plays a key role in biogeochemical cycles, influencing a variety of environmental processes and the cycling of other elements. For example, processes such as nitrogen and sulfur cycles, anaerobic ammonium oxidation with iron reduction, and sulfur-driven iron reduction highlight the interconnectedness of these cycles in terrestrial and aquatic ecosystems.
+
+The recognition of microbial iron reduction as a key environmental process marked a significant advancement in our understanding of subsurface biogeochemistry. Microbial iron reduction not only contributes to greenhouse gas formation but also regulates the dynamics of nutrients and contaminants in aquatic systems.
+
+In addition, in terrestrial soils, iron redox cycles are closely linked to carbon and nitrogen cycles.

@@ -2,6 +2,8 @@
 // (app.js) and the eval harness (evals/run.js). To improve rewrite quality,
 // change this file and run `npm run evals` — don't patch prompts per example.
 
+import { EXEMPLARS } from './exemplars.js';
+
 // Stance vocabulary by category. NOT used for rewriting — the prompts below
 // work from the neutrality test, which generalizes past any list. These exist
 // so the eval harness can assert that no known stance language survives in
@@ -43,6 +45,17 @@ Convert, don't soften — and label people by their documented act (conspirator,
 - "a masterpiece that continues to inspire readers" → delete (no checkable fact survives)
 If removing the stance leaves no checkable fact, delete the whole sentence.`;
 
+// Register calibration from known-good human-written articles, harvested by
+// `npm run fetch-exemplars`. These show the model what passing prose reads
+// like; they are style targets only, never content. Empty array = no block.
+const EXEMPLAR_BLOCK = EXEMPLARS.length
+  ? `
+
+Register calibration — the following excerpts are human-written Wikipedia prose that passes the neutrality test. Study the register, not the content: concrete facts stated once, in plain declarative sentences, with judgments left to the reader. Match this register in your rewrite. Never reuse their topics, facts, or phrasing.
+
+${EXEMPLARS.map((e, i) => `Excerpt ${i + 1} (from "${e.title}"):\n${e.text}`).join('\n\n')}`
+  : '';
+
 export const SYS = `You are an editing assistant for a Wikipedia editor cleaning up AI-generated or otherwise non-encyclopedic prose. Rewrite the text the user provides into neutral, encyclopedic register per Wikipedia's Manual of Style. You are a condensing editor, not a word-swapper: do not produce a sentence-for-sentence paraphrase of the input.
 
 Consolidate first — this matters more than word choice:
@@ -60,7 +73,7 @@ Quotations and sourced opinions get no exemption:
 - Compress attribution scaffolding to the shortest attribution that still names the source. When summarizing a review, state the reviewer's single substantive point as its own plain sentence ("X called the book intellectually demanding") rather than layering verbs of emphasis.
 - Keep citation markers like [3] attached to the claims they support; when you merge or paraphrase sentences, carry their markers along, and drop markers whose sentences you delete.
 
-Do NOT invent facts or add information not present in the original. Names, dates, and figures are preserved only when the claim they belong to survives; a name is not a reason to keep a sentence. Keep paragraph breaks where the original's topics change. Reply with ONLY the rewritten text as plain prose — no preamble, no commentary, and no markdown formatting of any kind (no asterisks for italics or bold, no em-dash dividers, no headings). Separate paragraphs with a blank line only.`;
+Do NOT invent facts or add information not present in the original. Names, dates, and figures are preserved only when the claim they belong to survives; a name is not a reason to keep a sentence. Keep paragraph breaks where the original's topics change. Reply with ONLY the rewritten text as plain prose — no preamble, no commentary, and no markdown formatting of any kind (no asterisks for italics or bold, no em-dash dividers, no headings). Separate paragraphs with a blank line only.${EXEMPLAR_BLOCK}`;
 
 export const CRITIC_SYS = `You are the reviewing editor in a two-pass Wikipedia neutrality pipeline. You receive the original draft and a first-pass rewrite of it. Your only job is to catch what the first pass missed — assume it missed something and go looking.
 

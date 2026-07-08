@@ -3,3 +3,7 @@ node_modules/
 *.log
 .DS_Store
  
+detector/.scores-cache.json
+detector/venv/
+detector/.classify-cache.json
+detector/sweeps/

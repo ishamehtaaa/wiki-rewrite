@@ -1,0 +1,52 @@
+{
+  "1.5b": {
+    "lowFpr": 0.1944,
+    "accuracy": 0.9403,
+    "samples": {
+      "ai": 25,
+      "human": 32
+    },
+    "leaveOneOutAccuracy": 0.614
+  },
+  "desklib": {
+    "auroc": 0.87,
+    "bestThreshold": 0.243,
+    "balancedAccuracy": 0.815,
+    "samples": {
+      "ai": 25,
+      "human": 32
+    },
+    "operatingPoints": [
+      {
+        "t": 0.25,
+        "tpr": 0.84,
+        "fpr": 0.25
+      },
+      {
+        "t": 0.5,
+        "tpr": 0.72,
+        "fpr": 0.188
+      },
+      {
+        "t": 0.75,
+        "tpr": 0.68,
+        "fpr": 0.094
+      },
+      {
+        "t": 0.9,
+        "tpr": 0.64,
+        "fpr": 0.031
+      },
+      {
+        "t": 0.95,
+        "tpr": 0.56,
+        "fpr": 0.031
+      },
+      {
+        "t": 0.99,
+        "tpr": 0.52,
+        "fpr": 0.031
+      }
+    ]
+  }
+}
