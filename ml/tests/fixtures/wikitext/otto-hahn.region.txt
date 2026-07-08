@@ -1,0 +1,45 @@
+{{Short description|German nuclear chemist and Nobel laureate (1879–1968)}}
+{{For-multi|the petrologist|Otto Hahn (petrologist)|the nuclear-powered merchant vessel|Otto Hahn (ship){{!}}''Otto Hahn'' (ship)}}
+{{Featured article}}
+{{Use dmy dates|date=February 2025}}
+{{Use British English|date=October 2025}}
+{{Infobox scientist
+| honorific_suffix  = {{post-nominals|country=GBR|size=100%|ForMemRS}}
+| image             = Otto Hahn 1970.jpg
+| birth_date        = {{birth date|1879|03|08|df=yes}}
+| birth_place       = [[Frankfurt]], Kingdom of Prussia, German Empire
+| death_date        = {{death date and age|df=y|1968|7|28|1879|3|8}}
+| death_place       = [[Göttingen]], Lower Saxony, West Germany
+| education         = [[Marburg University]]<br />[[Ludwig-Maximilians-Universität München]]
+| known_for         = {{plainlist|
+* Discovery of radioactive elements (1905–1921)
+* [[Radiothorium]] (<sup>228</sup>Th, 1905)
+* [[Radioactinium]] (<sup>227</sup>Th, 1906)
+* [[Mesothorium]] (<sup>228</sup>Ra, 1907)
+* [[Ionium]] (<sup>230</sup>Th, 1907)
+* [[Atomic recoil|Radioactive recoil]] (1909)
+* [[Fajans–Paneth–Hahn Law]]
+* [[Protactinium]] (Pa, 1917)
+* [[Nuclear isomerism]] (1921)
+* {{nowrap|''[[Applied Radiochemistry]]'' (1936)}}
+* [[Rubidium-strontium dating]] (1938)
+* [[Discovery of nuclear fission]] (1938)
+}}
+| spouse            = {{marriage|Edith Junghans|1913}}
+| children          = [[Hanno Hahn]]
+| awards            = {{ubl|[[Nobel Prize in Chemistry]] (1944)|[[Max Planck Medal]] (1949)|''[[Pour le Mérite#Civil class|Pour le Mérite]]'' (1952)|[[Faraday Lectureship Prize]] (1956)|[[Wilhelm Exner Medal]] (1958)|[[Legion of Honour]] (1959)|[[Enrico Fermi Award]] (1966)}}
+| fields            = [[Nuclear chemistry]]<br>[[Radiochemistry]]
+| work_institutions = {{ubl|[[University College London]]|[[McGill University]]|[[Friedrich Wilhelm University of Berlin]]| [[Kaiser Wilhelm Institute for Chemistry]]|[[Max Planck Society]]}}
+| doctoral_advisor  = [[Theodor Zincke]]
+| academic_advisors = {{ubl|[[Adolf von Baeyer]]|[[Emil Fischer]]|[[William Ramsay]]|[[Ernest Rutherford]]}}
+| doctoral_students = {{ubl|[[Hans-Joachim Born]]|[[Walter Seelmann-Eggebert]]|[[Siegfried Flügge]]|[[Aristid von Grosse]]|[[Nikolaus Riehl]]|[[Salomon Rosenblum]]|[[Fritz Strassmann]]}}
+| signature         = Otto Hahn signature.svg
+}}
+
+'''Otto Hahn''' ({{IPA|de|ˈɔtoː ˈhaːn|lang|De-Otto Hahn.ogg}}; 8 March 1879{{snd}}28 July 1968) was a German [[chemist]] who was a pioneer in the field of [[radiochemistry]]. He is referred to as the father of [[nuclear chemistry]] and discoverer of [[nuclear fission]], the science behind [[nuclear reactor]]s and [[nuclear weapon]]s. Hahn and [[Lise Meitner]] discovered [[isotopes]] of the radioactive elements [[isotopes of radium|radium]], [[Isotopes of thorium|thorium]], [[isotopes of protactinium|protactinium]] and [[isotopes of uranium|uranium]]. He also discovered the phenomena of [[atomic recoil]] and [[nuclear isomerism]], and pioneered [[rubidium–strontium dating]]. In 1938, Hahn, Meitner and [[Fritz Strassmann]] [[Discovery of nuclear fission|discovered nuclear fission]], for which Hahn alone was awarded the 1944 [[Nobel Prize in Chemistry]].
+
+A graduate of [[Marburg University]], which awarded him a doctorate in 1901, Hahn studied under Sir [[William Ramsay]] at [[University College London]] and at [[McGill University]] in Montreal, Canada, under [[Ernest Rutherford]], where he discovered several new radioactive isotopes. He returned to Germany in 1906; [[Emil Fischer]] let him use a former woodworking shop in the basement of the Chemical Institute at the [[Friedrich Wilhelm University of Berlin]] as a laboratory. Hahn completed his [[habilitation]] in early 1907 and became a ''[[Privatdozent]]''. In 1912, he became head of the Radioactivity Department of the newly founded [[Kaiser Wilhelm Institute for Chemistry]] (KWIC). Working with Austrian physicist Lise Meitner in the building that now bears their names, they made a series of groundbreaking discoveries, culminating with her isolation of the longest-lived isotope of protactinium in 1918.
+
+During [[World War I]] Hahn served with a ''[[Landwehr]]'' regiment on the [[Western Front (World War I)|Western Front]], and with the [[chemical warfare]] unit headed by [[Fritz Haber]] on the Western, [[Eastern Front (World War I)|Eastern]] and [[Italian front (World War I)|Italian]] fronts, earning the [[Iron Cross]] (2nd Class) for his part in the [[First Battle of Ypres]]. After the war he became the head of the KWIC, while remaining in charge of his own department. Between 1934 and 1938, he worked with Strassmann and Meitner on the study of isotopes created by neutron bombardment of uranium and thorium, which led to the discovery of nuclear fission. He was an opponent of [[Nazism]] and the [[The Holocaust|persecution of Jews]] by the [[Nazi Party]] that caused the removal of many of his colleagues, including Meitner, who was forced to flee Germany in 1938. Nonetheless, during [[World War II]], he worked on the [[German nuclear weapons program]], cataloguing the [[fission product]]s of uranium. At the end of the war he was arrested by the Allied forces and detained in [[Farm Hall]] with nine other German scientists, from July 1945 to January 1946.
+
+Hahn served as the last president of the [[Kaiser Wilhelm Society for the Advancement of Science]] in 1946 and as the founding president of its successor, the [[Max Planck Society]] from 1948 to 1960. In 1959, he co-founded the [[Federation of German Scientists]], a non-governmental organisation committed to the ideal of responsible science. As he worked to rebuild German science, he became one of the most influential and respected citizens of post-war [[West Germany]].
