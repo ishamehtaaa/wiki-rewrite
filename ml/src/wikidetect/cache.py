@@ -8,6 +8,7 @@ the JS/Python split maintained (.classify-cache.json, .scores-cache.json).
 
 import hashlib
 import sqlite3
+import threading
 
 from . import config
 
@@ -20,7 +21,10 @@ class ScoreCache:
     def __init__(self, path=None):
         path = path or config.CACHE_DB
         path.parent.mkdir(parents=True, exist_ok=True)
-        self._db = sqlite3.connect(path)
+        # Callers hop threads (asyncio.to_thread in sweeps); serialize access
+        # ourselves instead of relying on sqlite's same-thread check.
+        self._lock = threading.Lock()
+        self._db = sqlite3.connect(path, check_same_thread=False)
         self._db.execute(
             "CREATE TABLE IF NOT EXISTS scores ("
             " model_id TEXT NOT NULL, sha256 TEXT NOT NULL, p REAL NOT NULL,"
@@ -28,25 +32,24 @@ class ScoreCache:
         )
 
     def get(self, model_id: str, text: str) -> float | None:
-        row = self._db.execute(
-            "SELECT p FROM scores WHERE model_id = ? AND sha256 = ?",
-            (model_id, text_hash(text)),
-        ).fetchone()
+        with self._lock:
+            row = self._db.execute(
+                "SELECT p FROM scores WHERE model_id = ? AND sha256 = ?",
+                (model_id, text_hash(text)),
+            ).fetchone()
         return row[0] if row else None
 
     def put(self, model_id: str, text: str, p: float):
-        self._db.execute(
-            "INSERT OR REPLACE INTO scores VALUES (?, ?, ?)",
-            (model_id, text_hash(text), p),
-        )
-        self._db.commit()
+        self.put_many(model_id, [(text, p)])
 
     def put_many(self, model_id: str, pairs: list[tuple[str, float]]):
-        self._db.executemany(
-            "INSERT OR REPLACE INTO scores VALUES (?, ?, ?)",
-            [(model_id, text_hash(t), p) for t, p in pairs],
-        )
-        self._db.commit()
+        with self._lock:
+            self._db.executemany(
+                "INSERT OR REPLACE INTO scores VALUES (?, ?, ?)",
+                [(model_id, text_hash(t), p) for t, p in pairs],
+            )
+            self._db.commit()
 
     def close(self):
-        self._db.close()
+        with self._lock:
+            self._db.close()
