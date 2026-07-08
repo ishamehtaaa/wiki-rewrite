@@ -1,13 +1,4 @@
 {
-  "1.5b": {
-    "lowFpr": 0.1944,
-    "accuracy": 0.9403,
-    "samples": {
-      "ai": 25,
-      "human": 32
-    },
-    "leaveOneOutAccuracy": 0.614
-  },
   "desklib": {
     "auroc": 0.87,
     "bestThreshold": 0.243,
