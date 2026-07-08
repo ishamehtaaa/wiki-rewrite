@@ -1,0 +1,26 @@
+{
+  "name": "khadija-abdullahi-daleys (biography drowned in tribute language)",
+  "notes": "First case promoted from a live sweep (p(AI) 1.0). Real AI-written biography where every fact arrives wrapped in tribute ('esteemed title', 'indelible mark', 'groundbreaking achievement') plus speculation no source could verify ('likely played a significant role'). Tests that consolidation keeps the checkable biography (dates, Radio Mogadishu first, Waaberi) while the eulogy register is fully converted.",
+  "source": {
+    "url": "https://en.wikipedia.org/wiki/Khadija_Abdullahi_Daleys",
+    "revid": 1360606401,
+    "sweep": "november-timing.jsonl",
+    "pAI": 1,
+    "promoted": "2026-07-08"
+  },
+  "maxRatio": 0.7,
+  "mustKeep": [
+    "1936",
+    "Baidoa",
+    "Daleys",
+    "1951",
+    "Somali Youth League",
+    "Radio Mogadishu",
+    "1952",
+    "Waaberi",
+    "15 January 2018",
+    "Toronto"
+  ],
+  "maxPAI": 0.5,
+  "input": "Khadija Abdullahi (1936 – January 15, 2018) was a Somali singer who used the stage name Daleys. She garnered widespread recognition and affection, earning the esteemed title of \"the mother of Somali music.\" Her powerful vocals and captivating stage presence left an indelible mark on the Somali cultural landscape, influencing generations of musicians and music lovers alike.\n\nKhadija Abdullahi was born in Baidoa in 1936. Her early exposure to the rich traditions of Somali oral culture and music likely played a significant role in shaping her artistic sensibilities. She embarked on her public singing career in 1951, a pivotal moment in Somalia's political history, performing at political rallies organized by the Somali Youth League. This early involvement demonstrated her commitment to the burgeoning nationalist movement and her willingness to use her talent to amplify its message.\n\nHer career took a significant leap forward when she joined Radio Mogadishu. In 1952, she made history by becoming the first woman to have her voice broadcast on Somali radio. This groundbreaking achievement, however, was met with resistance in the conservative social climate of Mogadishu at the time, leading to protests and criticism. Despite the opposition, her father stood firmly by her, famously stating that \"the whole world was singing,\" underscoring his progressive views and support for his daughter's passion. Her resilience and talent ultimately prevailed, and she ascended to become one of the most beloved and influential musicians in the country. Beyond her musical contributions, Khadija Abdullahi was also a vocal advocate for Somali independence and the ideals of Pan-Africanism. Her songs often carried messages of unity, national pride, and the aspirations for a unified and prosperous Africa.\n\nIn the 1970s, a decade considered by many as a golden era for Somali music, she became an integral member of the renowned Somali supergroup Waaberi. This collective of talented artists played a crucial role in shaping the contemporary Somali musical landscape and further solidified Daleys's status as a leading figure in the industry.\n\nKhadija Abdullahi \"Daleys\" died on 15 January 2018 in Toronto, Canada, at the age of 82. Her death was mourned across Somalia and the diaspora, a testament to the profound impact she had on Somali culture and identity. Her legacy as \"the mother of Somali music\" continues to endure, inspiring future generations of artists and celebrating the rich heritage of Somali musical expression."
+}

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "evals": "node evals/run.js",
-    "fetch-exemplars": "node fetch-exemplars.js",
+    "promote": "node evals/promote.js",
+    "exemplars": "uv run --project ../ml wikidetect exemplars",
     "detect": "uv run --project ../ml wikidetect detect",
     "calibrate": "uv run --project ../ml wikidetect calibrate",
     "fetch-samples": "node ../detector/fetch-samples.js",
