@@ -50,7 +50,10 @@ EXEMPLAR_RECOMMENDED_MAX = 4  # beyond this the prompt bloats for no gain
 
 # --- models ------------------------------------------------------------------
 DEFAULT_MODEL = "desklib"
-SCORE_BATCH_SIZE = 16
+# DeBERTa-large attention is memory-hungry on MPS: bound batches by padded
+# token budget, not item count (short paragraphs batch wide, full docs narrow).
+MAX_BATCH_TOKENS = 4096
+MAX_BATCH_ITEMS = 32
 MODEL_MAX_LENGTH = {"desklib": 768, "e5": 512}
 
 # --- serving -----------------------------------------------------------------
