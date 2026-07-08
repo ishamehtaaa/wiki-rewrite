@@ -1,0 +1,3 @@
+# Hand-vetted mislabeled titles, one per line — excluded from harvesting.
+# Category labels are editor suspicions: after calibrating, eyeball the
+# worst-scored positives and best-scored negatives and record mislabels here.

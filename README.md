@@ -1,179 +1,198 @@
 # Neutralizer
 
-A small local tool that rewrites AI-generated, non-encyclopedic prose for
-Wikipedia editing. Paste a draft and it streams a consolidated neutral rewrite
-from Claude Sonnet in two passes: a rewrite, then a critic review against the
-same neutrality test that corrects anything the first pass missed. Repeated
-ideas are merged, filler sentences are deleted, and stance is stripped, so the
-output is typically half to two-thirds the length of the input.
+Two halves of one loop for Wikipedia AI cleanup:
 
-The API key stays server-side (read from `.env`), so it never touches the browser.
+- **`web/` — the rewriter.** A small local web app: paste an AI-written or
+  promotional draft and it streams a consolidated neutral rewrite from Claude
+  in two passes (rewrite, then a critic review against the same neutrality
+  test). Output is typically half to two-thirds the input length.
+- **`ml/` — the detector (`wikidetect`).** A Python package that finds AI
+  text on Wikipedia: benchmark-calibrated scoring (desklib DeBERTa-v3-large,
+  local Apple-GPU), category-wide triage sweeps, a reproducible labeled
+  corpus, and a LoRA training pipeline to eventually beat the frozen
+  baseline.
+
+They meet in `artifacts/` — JSON contracts the two sides read and write:
+
+```
+ml sweep ──► ranked findings (full text + revid)
+                │  npm run promote  (human triage)
+                ▼
+        web/evals/cases/*.json ──► failing case? fix rules.js BY PRINCIPLE
+                │                   (or grow shared/stance.json — that
+                ▼                    tightens assertions, never the prompt)
+        npm run evals  ── assertions + critic + detector p(AI) gate
+                ▲
+ml exemplars ──► artifacts/exemplars.json (register calibration in the
+                 prompt; every regeneration is a prompt change — evals gate it)
+```
+
+Nothing in the loop ever appends detector findings to prompt vocabulary:
+failures become eval cases and principled prompt fixes, never ban-list
+patches.
 
 ## Setup
 
 ```bash
-cp .env.example .env        # then edit .env and paste your key
-npm install
-npm start
+cp .env.example .env        # add your ANTHROPIC_API_KEY (console.anthropic.com)
+cd web && npm install && npm start        # http://localhost:2000
 ```
 
-Open http://localhost:2000
-
-Get an API key at https://console.anthropic.com
-
-### Docker (alternative)
+Detector side (one-time; needs [uv](https://docs.astral.sh/uv/)):
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...   # compose reads the key from your shell, not .env
-docker compose -f docker-compose.dev.yml up --build
+cd ml && uv sync                          # torch/transformers env
+uv run wikidetect calibrate               # reproduce the benchmark numbers
 ```
 
-Same app, same port: http://localhost:2000
+## The rewriter (`web/`)
 
-## Improving the rewriter
+Everything that defines "neutral" lives in `web/rules.js`: the neutrality
+test (one principle plus example conversions — deliberately not a term
+list) and the prompts for both passes. The two-pass pipeline itself is
+`web/lib/pipeline.js`, shared verbatim by the browser app and the evals.
 
-Everything that defines "neutral" lives in `rules.js`: the neutrality test
-(one principle plus example conversions — deliberately not a term list), the
-prompts for both the rewriter and the critic pass, and a stance vocabulary
-used only by the evals as assertions.
+The stance vocabulary lives in `shared/stance.json` — pure assertion data
+for the evals (compiled by `web/lib/stance.js` and `ml`'s `stance.py`),
+never prompt material.
 
-When you find a bad rewrite, don't add its phrasing to a ban list. Add the
-input to `evals/cases.js` with checks for what went wrong (facts that must
-survive, a length cap, endorsement limits — stance language is asserted
-automatically from the vocabulary in `rules.js`), then run:
+### Evals
+
+Cases are JSON files in `web/evals/cases/`, one failure mode each, with
+provenance when promoted from a sweep. Pipeline outputs are cached by a
+hash of (model + prompts + input): tightening an assertion re-checks for
+free; any prompt or exemplar change re-runs automatically.
 
 ```bash
-npm run evals              # all cases; exits non-zero on failure
-npm run evals -- drama     # only cases whose name matches
+npm run evals                 # all cases
+npm run evals -- drama        # cases whose name matches
+npm run evals -- --failed     # only last run's failures
+npm run evals -- --fresh      # bypass the output cache
+npm run evals -- --detector   # require the detector gate (see below)
 ```
 
-and adjust `rules.js` until every case passes without breaking the others.
-Each eval case costs a couple of API calls.
+When a `wikidetect serve` instance is up, every final output is also scored
+by the detector: the rewriter's output should not read as AI to the very
+detector that finds cleanup candidates. Currently a warning, not a failure
+(the detector is calibrated on article leads, not condensed rewrites);
+tighten per-case with `maxPAI`.
 
-### Register exemplars from known-good articles
-
-The rewriter is Claude behind an API, so it can't be fine-tuned — but
-known-good human prose can be embedded in the prompt as register
-calibration ("this is what passing prose reads like"). Harvest excerpts
-from articles you trust, or sample Wikipedia's own quality lists:
+### The loop: sweep → promote → case → fix
 
 ```bash
-# specific articles you vouch for
-npm run fetch-exemplars -- "https://en.wikipedia.org/wiki/Caesium" "Thylacine"
-
-# or N random Featured/Good articles
-npm run fetch-exemplars -- --from="https://en.wikipedia.org/wiki/Wikipedia:Featured_articles" --count=3
-npm run fetch-exemplars -- --from="https://en.wikipedia.org/wiki/Wikipedia:Good_articles" --count=3
+cd ml && uv run wikidetect sweep --category "Category:Articles containing suspected AI-generated texts from November 2025"
+cd ../web && npm run promote -- --sweep=../artifacts/sweeps/<slug>.jsonl --title="Worst Article"
+# fill in mustKeep + notes in the new case file, then
+npm run evals -- <case-name>
 ```
 
-Each article's lead is stripped to plain prose and written to
-`exemplars.js`, which `rules.js` appends to the rewrite prompt. Leads
-that contain the stance vocabulary the evals ban are skipped
-automatically — an exemplar that models stance would teach exactly the
-wrong thing. `--before=YYYY-MM-DD` takes a pre-ChatGPT revision if you
-want guaranteed-human text; `--replace` starts the set over.
+A case that passes immediately is a regression guard — commit it. A case
+that fails has exposed a prompt weakness: fix `rules.js` by principle, get
+the full suite green, and commit the case and the fix together.
 
-Exemplars are a prompt change like any other: keep a set only if
-`npm run evals` still passes with it (run the suite more than once —
-single runs are noisy). A handful of excerpts is the sweet spot; the
-script warns past four.
+### Register exemplars
 
-## AI detection (offline)
-
-`npm run detect` scores text with the detector that performed best on
-this repo's labeled benchmark of *real* Wikipedia cleanup data
-(currently `desklib/ai-text-detector-v1.01`, a DeBERTa-v3-large
-classifier, run locally on the Apple GPU). Output is p(AI) plus what
-that score meant on the benchmark — measured catch and false-flag
-rates, not invented confidence labels. No API key; nothing leaves your
-machine after the one-time model download.
-
-One-time setup (scoring runs in Python; the CLI stays Node):
+Known-good human prose is embedded in the prompt as register calibration
+(`artifacts/exemplars.json`, loaded by `rules.js`). Regenerate with:
 
 ```bash
-python3 -m venv detector/venv
-detector/venv/bin/pip install torch transformers sentencepiece protobuf
+npm run exemplars -- "Caesium" "Thylacine"
+npm run exemplars -- --from "Wikipedia:Featured articles" --count 3
 ```
 
-Usage:
+Candidates are stance-filtered, cleanly extracted (no wikitext husks), and
+must score human-typical on the calibrated detector. Exemplars are a prompt
+change like any other: validate with `npm run evals -- --fresh` before
+committing the new JSON. A handful is the sweet spot; the tool warns past
+four.
+
+## The detector (`ml/`)
 
 ```bash
-npm run detect -- suspect.txt         # file
-pbpaste | npm run detect              # clipboard
-npm run detect -- --json suspect.txt  # machine-readable
+cd ml
+uv run wikidetect detect suspect.txt      # p(AI) + benchmark-calibrated verdict
+uv run wikidetect serve                   # long-lived HTTP scorer (model loads once)
+uv run wikidetect sweep --category "..."  # ranked triage report for a category
+uv run wikidetect calibrate               # benchmark -> artifacts/thresholds.json
 ```
 
-Multi-paragraph input also gets per-paragraph scores, to localize an AI
-passage spliced into an otherwise human article.
+- `serve` answers warm `/detect` and `/score` requests in well under 2s on
+  127.0.0.1:8756 (the old stack paid a 30–60s model load per invocation).
+- `sweep` overlaps concurrent Wikipedia fetches with batched GPU scoring
+  through a shared sqlite score cache; a ~600-article month takes ~20–25
+  minutes fresh (use `caffeinate -i` for unattended runs — a sleeping Mac
+  suspends the GPU). Records carry full text and revid so findings can be
+  promoted into eval cases even after the live article is cleaned up.
+  Output: `artifacts/sweeps/<slug>.jsonl` + ranked `.md`, resumable.
 
-### Sweeping a whole cleanup category
+Verdicts are phrased from measured benchmark operating points (catch rate
+vs false-flag rate), never invented confidence. Detector output is a triage
+signal, not proof: judge content against sources and history before acting.
 
-`npm run sweep` scores every article in a WikiProject AI Cleanup monthly
-category and writes a ranked triage report (worst first, linked, with
-each article's most AI-typical paragraph):
+### The corpus
+
+Labeled data is versioned as manifests (`ml/manifests/corpus-*.jsonl`: one
+row per sample with label, title, revid, sha256) plus a gitignored
+content-addressed text store — `wikidetect corpus fetch` re-materializes
+texts from the pinned revids and verifies hashes on any clone.
+
+- **corpus-v0** is the frozen historical benchmark (`ml/corpus-v0/`,
+  57 committed files) — permanently test-only.
+- **corpus-v1** scales up: positives from every monthly cleanup category
+  (whole-article tags trusted only on pages created after 2022-12-01);
+  negatives from pre-2022-06-01 revisions in three strata — matched
+  (pre-cutoff leads of the same tagged pages: hardest), random articles,
+  and Featured Article leads.
 
 ```bash
-caffeinate -i npm run sweep -- \
-  --category="https://en.wikipedia.org/wiki/Category:Articles_containing_suspected_AI-generated_texts_from_November_2025"
+uv run wikidetect corpus harvest --version v1          # all months (hours; resumable)
+uv run wikidetect corpus split --version v1            # grouped, stratified 80/10/10
+uv run wikidetect calibrate --samples ... --corpus-version v1
 ```
 
-`caffeinate -i` keeps the Mac awake for unattended runs. A ~600-article
-month takes roughly an hour (rate-limited API calls; the model loads
-once). Results append to `detector/sweeps/<category>.jsonl` as each
-article finishes, so an interrupted run resumes exactly where it
-stopped — rerun the same command. The ranked markdown report lands next
-to it. `--limit=N` caps a trial run.
+Category labels are editor suspicions: after calibrating, eyeball the
+worst-scored positives / best-scored negatives and blocklist mislabels in
+`ml/manifests/blocklist.txt`.
 
-### The benchmark
+### Training
 
-Detectors are chosen by evidence, never reputation — same philosophy as
-the rewriter evals. `detector/samples/ai/` holds text harvested from
-articles tagged `{{AI-generated}}`; `detector/samples/human/` holds
-pre-ChatGPT revisions (guaranteed human). `npm run calibrate` evaluates
-the active detector on them (scores cached by content hash), prints
-AUROC / balanced accuracy / an operating-point table, and writes
-`detector/thresholds.json`, which `npm run detect` uses to phrase
-verdicts.
-
-Grow the benchmark straight from Wikipedia:
+LoRA fine-tune of the desklib body on a corpus version, plain PyTorch loop,
+runs tracked as directories under `ml/artifacts/runs/<name>/`:
 
 ```bash
-# articles tagged {{AI-generated}} (WikiProject AI Cleanup categories)
-npm run fetch-samples -- --label=ai --limit=25 \
-  --category="Category:Articles containing suspected AI-generated texts from December 2025"
-
-# guaranteed-human: last revision before ChatGPT existed
-npm run fetch-samples -- --label=human --limit=25 --before=2022-06-01 \
-  --category="Category:Featured articles"
-
-npm run calibrate
+uv run wikidetect train --name lora-a --corpus-version v1
+uv run wikidetect eval lora-a
 ```
 
-The AI fetcher samples the region the `{{AI-generated}}` tag covers
-(the tagged section, or the whole article for a top-of-page tag) and
-skips whole-article samples from pre-ChatGPT pages, whose authorship is
-mixed. When the detector gets a real case wrong, add that text to the
-right samples folder and recalibrate — don't tweak `thresholds.json` by
-hand. To try a different detector, add it to `detector/classify.py` and
-make it beat the incumbent on the benchmark first.
+The eval always scores the frozen desklib baseline on the identical test
+split. Adoption gate: the candidate must beat the baseline's test AUROC
+without regressing FPR at the 0.90 operating point — only then does it get
+calibrated into `artifacts/thresholds.json` and used for sweeps.
 
-Findings so far: zero-shot perplexity methods — GPT-2 perplexity and
-Binoculars (`detector/binoculars.js`, kept as a falsified baseline) —
-collapse to near-chance on real cleanup data: edited, cross-generator
-AI text reads as high-perplexity, while established human articles are
-memorized by open models and read as low-perplexity.
+Findings so far: zero-shot perplexity methods (GPT-2 perplexity,
+Binoculars) collapsed to near-chance on real cleanup data and were removed;
+the supervised desklib detector holds AUROC 0.87 on corpus-v0.
 
-Detector output is a triage signal, never proof: per WikiProject AI
-Cleanup guidance, judge content against sources, style, and history
-before tagging or removing anything. The category labels are editors'
-suspicions, so inspect benchmark outliers by hand.
+## Repo layout
+
+```
+shared/stance.json     stance vocabulary (assertion data, both languages)
+artifacts/             Node<->Python contracts: exemplars.json, thresholds.json,
+                       sweeps/ (gitignored bulk)
+web/                   rewriter app + evals (Node, 2 deps)
+ml/                    wikidetect Python package (uv), corpus manifests,
+                       corpus-v0 benchmark, training runs
+```
 
 ## Notes
 
-- `.env` and `node_modules/` are gitignored — safe to put this folder in a repo.
-- The rewrite requires the server and an API key — there is no offline mode.
-- Cost is a fraction of a cent per rewrite (two Sonnet calls: rewrite + review).
-- This is built for local use. If you ever expose it beyond localhost, add auth —
-  the proxy will happily spend your key for anyone who can reach it.
+- `.env`, caches, venvs, sweeps, and corpus texts are gitignored; manifests,
+  calibration, exemplars, and eval cases are committed — the state that
+  defines behavior is all in git.
+- Rewrites cost a fraction of a cent (two Sonnet calls); evals are cached.
+  Detection is fully local — nothing leaves your machine after the one-time
+  model download.
+- Built for local use. If you expose the web app beyond localhost, add
+  auth — the proxy will spend your key for anyone who can reach it.
 - The tool can't confirm whether any claim is true; checking flagged claims
   against sources stays your job.

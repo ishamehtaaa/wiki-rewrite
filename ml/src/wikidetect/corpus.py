@@ -206,23 +206,29 @@ async def harvest(version: str = "v1", months: int = 0, negatives_per_positive: 
     print(f"{len(cats)} monthly categories")
 
     n_pos = 0
+    CHUNK = 25
     for cat in cats:
         titles = await client.category_members(cat)
         random.shuffle(titles)
         month_slug = cat.removeprefix("Category:")
         print(f"  {month_slug}: {len(titles)} members")
-        results = await asyncio.gather(
-            *[_harvest_positive(client, t, month_slug) for t in titles
-              if ("ai", t) not in have and t not in blocked]
-        )
-        for r in results:
-            if r and limit and n_pos >= limit:
+        candidates = [t for t in titles if ("ai", t) not in have and t not in blocked]
+        # chunked so a --limit run stops fetching once it has enough
+        for start in range(0, len(candidates), CHUNK):
+            if limit and n_pos >= limit:
                 break
-            if r:
+            chunk = candidates[start : start + CHUNK]
+            results = await asyncio.gather(
+                *[_harvest_positive(client, t, month_slug) for t in chunk]
+            )
+            for r in results:
+                if not r or (limit and n_pos >= limit):
+                    continue
                 rows.append(r)
                 have.add(("ai", r["title"]))
                 n_pos += 1
-        save_manifest(version, rows)
+            save_manifest(version, rows)
+            print(f"    {n_pos} positives so far")
         if limit and n_pos >= limit:
             break
     print(f"positives harvested this run: {n_pos}")
