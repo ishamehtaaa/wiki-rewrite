@@ -1,5 +1,8 @@
 {
   "desklib": {
+    "model_id": "desklib@v1.01/768",
+    "corpus_version": "v0",
+    "created_at": "2026-07-08",
     "auroc": 0.87,
     "bestThreshold": 0.243,
     "balancedAccuracy": 0.815,
