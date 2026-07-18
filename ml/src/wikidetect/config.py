@@ -57,5 +57,7 @@ MAX_BATCH_ITEMS = 32
 MODEL_MAX_LENGTH = {"desklib": 768, "e5": 512}
 
 # --- serving -----------------------------------------------------------------
-SERVE_HOST = "127.0.0.1"
+# Loopback-only by default; containers set WIKIDETECT_HOST=0.0.0.0 so the
+# web app's bridge can reach them across the docker network.
+SERVE_HOST = os.environ.get("WIKIDETECT_HOST", "127.0.0.1")
 SERVE_PORT = 8756

@@ -1,7 +1,7 @@
 // Compiles shared/stance.json into the STANCE categories the eval harness
 // and exemplar harvester assert with. Node-only (reads from disk) — the
-// browser never needs stance vocabulary, because it is assertion data for
-// evals, never prompt material (see rules.js for why).
+// browser fetches shared/stance.json itself (app.js) for display-only
+// highlighting; the vocabulary is never prompt material (see rules.js for why).
 //
 // To tighten what the evals catch, edit shared/stance.json — that file is
 // the single source of the vocabulary for both the Node and Python sides.

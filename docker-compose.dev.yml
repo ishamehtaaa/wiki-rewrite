@@ -1,8 +1,11 @@
-# LOCAL DEV — app only, served directly on http://localhost:2000.
+# LOCAL DEV — app + detector, served directly on http://localhost:2000.
 # No Caddy, no TLS.
 #   cp .env.example .env   # add your ANTHROPIC_API_KEY
 #   docker compose -f docker-compose.dev.yml up --build
 #   -> open http://localhost:2000
+#
+# The detector image bakes in the desklib weights, so the first build
+# downloads ~1.7 GB once; after that it starts in ~30s (model load).
 services:
   app:
     build: .
@@ -13,3 +16,18 @@ services:
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - PORT=2000
+      - WIKIDETECT_URL=http://detector:8756
+    depends_on:
+      - detector
+
+  detector:
+    build:
+      context: .
+      dockerfile: Dockerfile.ml
+    container_name: wiki-detector
+    restart: unless-stopped
+    # not exposed to the host — only the app container talks to it
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8756/health')"]
+      interval: 30s
+      start_period: 120s

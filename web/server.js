@@ -11,6 +11,8 @@ app.use(express.json({ limit: '256kb' }));
 app.use(express.static(here('.'))); // serves index.html from web/
 // Read-only view of the Node↔Python contract layer (exemplars, thresholds).
 app.use('/artifacts', express.static(here('../artifacts')));
+// Stance vocabulary, fetched by the browser for display-only highlighting.
+app.use('/shared', express.static(here('../shared')));
 
 const KEY = process.env.ANTHROPIC_API_KEY;
 if (!KEY) {
@@ -36,6 +38,23 @@ app.post('/api/rewrite', async (req, res) => {
     else res.end();
   } catch (e) {
     res.status(502).json({ error: { message: 'Proxy failed: ' + e.message } });
+  }
+});
+
+// Local detector bridge: forwards to a running `wikidetect serve` instance.
+const WIKIDETECT_URL = process.env.WIKIDETECT_URL || 'http://127.0.0.1:8756';
+app.post('/api/detect', async (req, res) => {
+  try {
+    const upstream = await fetch(`${WIKIDETECT_URL}/detect`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ text: req.body?.text ?? '' })
+    });
+    res.status(upstream.status).json(await upstream.json());
+  } catch {
+    res.status(503).json({
+      error: `No detector at ${WIKIDETECT_URL} — start one with: cd ml && uv run wikidetect serve`
+    });
   }
 });
 

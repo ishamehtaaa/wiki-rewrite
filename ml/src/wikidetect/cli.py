@@ -103,6 +103,8 @@ def cmd_train(args):
     train(
         name=args.name, corpus_version=args.corpus_version, epochs=args.epochs,
         lr=args.lr, lora_r=args.lora_r, resume=args.resume,
+        micro_batch=args.micro_batch, max_length=args.max_length,
+        throttle=args.throttle, grad_checkpoint=args.grad_checkpoint,
     )
 
 
@@ -172,6 +174,13 @@ def main():
     p.add_argument("--lr", type=float, default=2e-4)
     p.add_argument("--lora-r", type=int, default=16)
     p.add_argument("--resume", action="store_true")
+    p.add_argument("--micro-batch", type=int, default=2)
+    p.add_argument("--max-length", type=int, default=0,
+                   help="truncate to this many tokens instead of the model's 768 (biggest compute/memory lever)")
+    p.add_argument("--throttle", type=float, default=0.0,
+                   help="sleep this many seconds after each micro-batch — slower, but the machine stays usable")
+    p.add_argument("--grad-checkpoint", action="store_true",
+                   help="recompute activations in backward: ~30%% slower, much lower peak memory")
     p.set_defaults(fn=cmd_train)
 
     p = sub.add_parser("eval", help="evaluate a training run vs the frozen baseline on the test split")

@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Neutralizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,49 +14,79 @@
   <header>
     <div class="brand">
       <div class="brand-mark">N</div>
-      <div class="brand-text">
-        <div class="brand-name">Neutralizer</div>
-        <div class="brand-sub">Strip AI puffery into plain, encyclopaedic prose</div>
-      </div>
+      <div class="brand-name">Neutralizer</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-link" id="sampleBtn">Load example</button>
+      <button class="btn-pill" id="resetBtn">Start over</button>
     </div>
   </header>
 
-  <div class="toolbar">
-    <div class="toolbar-hint">
-      <span class="lede"><span class="dot"></span>Paste an AI-written draft, then clean it</span>
-    </div>
-    <div class="toolbar-actions">
-      <button class="btn-ghost" id="resetBtn">Clear</button>
-      <button class="btn-primary" id="cleanBtn">Clean up<span class="arrow">→</span></button>
-    </div>
-  </div>
+  <div class="sheet-wrap">
+    <div class="sheet">
 
-  <main>
-    <!-- INPUT -->
-    <section class="pane">
-      <div class="pane-head">
-        <span class="pane-title">Source draft</span>
-      </div>
-      <div class="npv-body">
-        <textarea id="input" class="npv-ta" placeholder="Paste your AI-generated Wikipedia text here…"></textarea>
-      </div>
-    </section>
-
-    <!-- OUTPUT -->
-    <section class="pane">
-      <div class="pane-head">
-        <span class="pane-title accent">Neutral version</span>
-        <span class="pane-status" id="status"></span>
-      </div>
-      <div class="npv-body">
-        <div class="prose" id="clean" hidden></div>
-        <div class="empty" id="outputEmpty">
-          <div class="empty-glyph">¶</div>
-          <div class="empty-text">The rewritten, neutral text will appear here after you clean a draft.</div>
+      <!-- STAGE 1: PASTE -->
+      <div class="stage" id="stageEdit">
+        <div class="npv-body">
+          <div class="ta-wrap">
+            <textarea id="input" class="npv-ta" placeholder="Paste an AI-generated Wikipedia draft here…"></textarea>
+          </div>
+        </div>
+        <div class="edit-bar">
+          <div class="legend" id="legend"><span class="legend-title">Scans for</span></div>
+          <button class="btn-analyze" id="analyzeBtn">Analyze →</button>
         </div>
       </div>
-    </section>
-  </main>
+
+      <!-- STAGE 2: REVIEW -->
+      <div class="stage" id="stageReview" hidden>
+        <div class="npv-body">
+          <div class="review-col">
+            <div class="verdict-card">
+              <div class="verdict-badge" id="verdictBadge"></div>
+              <div class="verdict-main">
+                <div class="verdict-label" id="verdictLabel"></div>
+                <div class="verdict-desc" id="verdictDesc"></div>
+              </div>
+              <div class="verdict-actions">
+                <button class="btn-ghost-sm" id="editBtn">Edit text</button>
+                <button class="btn-accent" id="rewriteBtn">Rewrite as neutral →</button>
+              </div>
+            </div>
+            <div class="chips" id="chips" hidden></div>
+            <div class="verdict-foot" id="verdictFoot" hidden></div>
+            <div class="annotated" id="annotated"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 3: NEUTRAL -->
+      <div class="stage" id="stageClean" hidden>
+        <div class="strip">
+          <span class="strip-dot"></span>
+          <span class="strip-label" id="stripLabel"></span>
+          <span class="strip-status" id="stripStatus"></span>
+          <span class="strip-spacer"></span>
+          <button class="btn-pill btn-sm" id="backBtn">← Back to review</button>
+        </div>
+        <div class="split">
+          <section class="col">
+            <div class="col-head"><span class="col-title">Source · flagged</span></div>
+            <div class="npv-body"><div class="prose" id="sourceProse"></div></div>
+          </section>
+          <div class="split-rule"></div>
+          <section class="col col-neutral">
+            <div class="col-head">
+              <span class="col-title accent">Neutral version</span>
+              <button class="btn-copy" id="copyBtn" disabled>Copy</button>
+            </div>
+            <div class="npv-body"><div class="prose" id="cleanProse"></div></div>
+          </section>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
 <script type="module" src="app.js"></script>
 </body>
