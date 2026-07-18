@@ -164,12 +164,6 @@ uv run wikidetect train --name lora-a --corpus-version v1
 uv run wikidetect eval lora-a
 ```
 
-On a machine that can't take the full load, dial it down: `--max-length 384`
-(the biggest lever; recorded in the run config so eval truncates the same
-way), `--micro-batch 1` (accumulation keeps the effective batch at 16),
-`--throttle 0.3` (sleep between micro-batches — slower wall-clock, usable
-machine), and `--grad-checkpoint` if memory pressure/swap is the problem.
-
 The eval always scores the frozen desklib baseline on the identical test
 split. Adoption gate: the candidate must beat the baseline's test AUROC
 without regressing FPR at the 0.90 operating point — only then does it get

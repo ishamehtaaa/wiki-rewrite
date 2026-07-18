@@ -8,9 +8,8 @@ load per invocation).
     POST /score  {"texts": [...]}  -> {"model": ..., "scores": [...]}
     POST /detect {"text": "..."}   -> full structured finding (see detect.py)
 
-stdlib ThreadingHTTPServer bound to 127.0.0.1 (WIKIDETECT_HOST overrides,
-for containers): the GPU serializes scoring anyway, so a model lock is all
-the concurrency control needed.
+stdlib ThreadingHTTPServer bound to 127.0.0.1: the GPU serializes scoring
+anyway, so a model lock is all the concurrency control needed.
 """
 
 import json

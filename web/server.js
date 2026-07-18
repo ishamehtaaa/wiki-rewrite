@@ -41,22 +41,5 @@ app.post('/api/rewrite', async (req, res) => {
   }
 });
 
-// Local detector bridge: forwards to a running `wikidetect serve` instance.
-const WIKIDETECT_URL = process.env.WIKIDETECT_URL || 'http://127.0.0.1:8756';
-app.post('/api/detect', async (req, res) => {
-  try {
-    const upstream = await fetch(`${WIKIDETECT_URL}/detect`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ text: req.body?.text ?? '' })
-    });
-    res.status(upstream.status).json(await upstream.json());
-  } catch {
-    res.status(503).json({
-      error: `No detector at ${WIKIDETECT_URL} — start one with: cd ml && uv run wikidetect serve`
-    });
-  }
-});
-
 const PORT = process.env.PORT || 2000;
 app.listen(PORT, () => console.log(`\n  Wiki rewriter running at http://localhost:${PORT}\n`));

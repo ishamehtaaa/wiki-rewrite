@@ -19,7 +19,6 @@ adopt only if it beats the baseline on the frozen test split.
 
 import json
 import subprocess
-import time
 
 import torch
 from torch.utils.data import DataLoader
@@ -27,7 +26,8 @@ from torch.utils.data import DataLoader
 from .. import config
 from .dataset import CorpusDataset, collate
 
-EFFECTIVE_BATCH = 16
+MICRO_BATCH = 2
+ACCUM_STEPS = 8  # effective batch 16
 WARMUP_FRAC = 0.06
 
 
@@ -48,8 +48,7 @@ def _val_auroc(model, loader, device) -> float:
 
 
 def train(name: str, corpus_version: str = "v1", epochs: int = 3, lr: float = 2e-4,
-          lora_r: int = 16, resume: bool = False, micro_batch: int = 2,
-          max_length: int = 0, throttle: float = 0.0, grad_checkpoint: bool = False):
+          lora_r: int = 16, resume: bool = False):
     from peft import LoraConfig, get_peft_model
     from safetensors.torch import save_file
 
@@ -62,10 +61,7 @@ def train(name: str, corpus_version: str = "v1", epochs: int = 3, lr: float = 2e
 
     base = Scorer("desklib")  # reuse the exact benchmark model + tokenizer
     model, tokenizer = base.model, base.tokenizer
-    # a shorter window is the cheapest compute lever; it is recorded in
-    # config.json so eval truncates identically
-    max_length = max_length or base.max_length
-    accum_steps = max(1, EFFECTIVE_BATCH // micro_batch)
+    max_length = base.max_length
 
     lora = LoraConfig(
         r=lora_r, lora_alpha=lora_r * 2, lora_dropout=0.05,
@@ -73,9 +69,6 @@ def train(name: str, corpus_version: str = "v1", epochs: int = 3, lr: float = 2e
         bias="none",
     )
     model.model = get_peft_model(model.model, lora)
-    if grad_checkpoint:
-        model.model.gradient_checkpointing_enable(
-            gradient_checkpointing_kwargs={"use_reentrant": False})
     for p in model.classifier.parameters():
         p.requires_grad = True
     model.to(DEVICE).train()
@@ -84,8 +77,8 @@ def train(name: str, corpus_version: str = "v1", epochs: int = 3, lr: float = 2e
 
     train_ds = CorpusDataset(corpus_version, "train", tokenizer, max_length)
     val_ds = CorpusDataset(corpus_version, "val", tokenizer, max_length)
-    train_loader = DataLoader(train_ds, batch_size=micro_batch, shuffle=True, collate_fn=collate(tokenizer))
-    val_loader = DataLoader(val_ds, batch_size=micro_batch, collate_fn=collate(tokenizer))
+    train_loader = DataLoader(train_ds, batch_size=MICRO_BATCH, shuffle=True, collate_fn=collate(tokenizer))
+    val_loader = DataLoader(val_ds, batch_size=MICRO_BATCH, collate_fn=collate(tokenizer))
     print(f"corpus-{corpus_version}: {len(train_ds)} train / {len(val_ds)} val")
 
     git_sha = subprocess.run(
@@ -95,12 +88,11 @@ def train(name: str, corpus_version: str = "v1", epochs: int = 3, lr: float = 2e
     (run_dir / "config.json").write_text(json.dumps({
         "base": "desklib", "corpus_version": corpus_version, "max_length": max_length,
         "epochs": epochs, "lr": lr, "lora_r": lora_r,
-        "micro_batch": micro_batch, "accum_steps": accum_steps,
-        "throttle": throttle, "grad_checkpoint": grad_checkpoint, "git_sha": git_sha,
+        "micro_batch": MICRO_BATCH, "accum_steps": ACCUM_STEPS, "git_sha": git_sha,
     }, indent=2) + "\n")
 
     opt = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=lr)
-    total_steps = max(1, len(train_loader) // accum_steps) * epochs
+    total_steps = max(1, len(train_loader) // ACCUM_STEPS) * epochs
     sched = torch.optim.lr_scheduler.LambdaLR(
         opt,
         lambda s: min(1.0, s / max(1, total_steps * WARMUP_FRAC))
@@ -117,13 +109,11 @@ def train(name: str, corpus_version: str = "v1", epochs: int = 3, lr: float = 2e
         for i, (input_ids, mask, y) in enumerate(train_loader):
             with torch.autocast("mps", dtype=torch.float16):
                 logits = model(input_ids.to(DEVICE), mask.to(DEVICE)).squeeze(-1)
-                loss = loss_fn(logits.float(), y.to(DEVICE)) / accum_steps
+                loss = loss_fn(logits.float(), y.to(DEVICE)) / ACCUM_STEPS
             loss.backward()
-            running += loss.item() * accum_steps
+            running += loss.item() * ACCUM_STEPS
             n_batches += 1
-            if throttle:
-                time.sleep(throttle)  # duty-cycle the GPU; machine stays usable
-            if (i + 1) % accum_steps == 0:
+            if (i + 1) % ACCUM_STEPS == 0:
                 opt.step()
                 sched.step()
                 opt.zero_grad()
